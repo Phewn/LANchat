@@ -4,14 +4,20 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
+
+    private EditText newShout;
+    private TextView textI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
     }
 
 
@@ -28,6 +34,17 @@ public class MainActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        if (id == R.id.shoutButton) {
+            if (newShout.getText().toString() != "") {
+                String txt = newShout.getText().toString();
+                TextView textView = (TextView) findViewById(R.id.textViewI);
+                textView.setText(txt);
+
+                return true;
+
+            }
+        }
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
