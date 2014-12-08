@@ -4,6 +4,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -12,6 +14,7 @@ public class MainActivity extends ActionBarActivity {
 
     private EditText newShout;
     private TextView textI;
+    private Button shoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         if (id == R.id.shoutButton) {
+
             return true;
         }
 
@@ -46,4 +50,11 @@ public class MainActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public void ButtonOnClick(View v) {
+        switch (v.getId()) {
+            case R.id.shoutButton:
+        }
+    }
 }
+
