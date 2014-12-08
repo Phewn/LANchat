@@ -36,18 +36,11 @@ public class MainActivity extends ActionBarActivity {
         int id = item.getItemId();
 
         if (id == R.id.shoutButton) {
-            if (newShout.getText().toString() != "") {
-                String txt = newShout.getText().toString();
-                TextView textView = (TextView) findViewById(R.id.textViewI);
-                textView.setText(txt);
-
-                return true;
-
-            }
+            return true;
         }
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        else if (id == R.id.action_settings) {
             return true;
         }
 
