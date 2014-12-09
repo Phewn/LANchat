@@ -1,6 +1,7 @@
 package edu.chalmers.lanchat;
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
@@ -16,6 +17,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 
 public class WifiActivity extends Activity implements WifiP2pManager.PeerListListener {
@@ -140,6 +148,29 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
                 //failure logic
             }
         });
+    }
+
+    public void sendChatMessage(String message, String host, int port){
+        Context context = this.getApplicationContext();
+        int len;
+        Socket socket = new Socket();
+        byte buf[] = new byte[1024];
+
+        try{
+            socket.bind(null);
+            socket.connect((new InetSocketAddress(host, port)), 500);
+
+            OutputStream outputStream = socket.getOutputStream();
+            InputStream inputStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
+            while ((len = inputStream.read(buf)) != -1){
+                outputStream.write(buf,0,len);
+            }
+            outputStream.close();
+            inputStream.close();
+
+        }catch(Exception e){
+            return;
+        }
     }
 
 }
