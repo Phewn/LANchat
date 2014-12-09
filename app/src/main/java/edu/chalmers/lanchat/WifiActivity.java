@@ -3,6 +3,7 @@ package edu.chalmers.lanchat;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
@@ -41,11 +42,13 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
+
                 Log.d("LANChat", "Success!");
             }
 
             @Override
             public void onFailure(int reason) {
+
                 Log.d("LANChat", "Failure!");
             }
         });
@@ -115,5 +118,28 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
             Log.d("LANChat", peer.deviceName);
         }
         Log.d("LANChat", "=========");
+        if ( peers.getDeviceList().iterator().hasNext()){
+            WifiP2pDevice device = peers.getDeviceList().iterator().next();
+            connectDevice(device);
+
+        }
     }
+
+    public void connectDevice(WifiP2pDevice device){
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+
+            @Override
+            public void onSuccess() {
+                //success logic
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                //failure logic
+            }
+        });
+    }
+
 }
