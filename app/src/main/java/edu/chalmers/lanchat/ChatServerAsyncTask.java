@@ -18,11 +18,14 @@ public class ChatServerAsyncTask extends AsyncTask{
         try {
             ServerSocket serverSocket = new ServerSocket(8888);
             Socket client = serverSocket.accept();
+            Log.d("LanChat", "What's up");
 
             InputStream inputStream = client.getInputStream();
             String message = inputStream.toString();
 
             serverSocket.close();
+
+            Log.d("LanChat", message);
 
             return message;
 

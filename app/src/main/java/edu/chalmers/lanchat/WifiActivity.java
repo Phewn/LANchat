@@ -8,6 +8,7 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pGroup;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.support.v7.app.ActionBarActivity;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -37,15 +39,15 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi);
 
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
-        receiver = new WifiBroadcastReceiver(manager, channel, this);
-
         intentFilter = new IntentFilter();
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(this, getMainLooper(), null);
+        receiver = new WifiBroadcastReceiver(manager, channel, this);
 
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
@@ -70,6 +72,7 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
                     @Override
                     public void onSuccess() {
                         Toast.makeText(WifiActivity.this, "Success!", Toast.LENGTH_SHORT).show();
+                        ChatServerAsyncTask chatter = new ChatServerAsyncTask();
                     }
 
                     @Override
@@ -129,11 +132,10 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
         if ( peers.getDeviceList().iterator().hasNext()){
             WifiP2pDevice device = peers.getDeviceList().iterator().next();
             connectDevice(device);
-
         }
     }
 
-    public void connectDevice(WifiP2pDevice device){
+    public void connectDevice(final WifiP2pDevice device){
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
@@ -141,6 +143,9 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
             @Override
             public void onSuccess() {
                 //success logic
+                String msg = "One small step";
+                Log.d("LanChat", "Connection succsess, sending message");
+                sendChatMessage(msg, device, 8888);
             }
 
             @Override
@@ -150,18 +155,18 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
         });
     }
 
-    public void sendChatMessage(String message, String host, int port){
-        Context context = this.getApplicationContext();
+    public void sendChatMessage(String message, WifiP2pDevice device, int port){
+
         int len;
         Socket socket = new Socket();
         byte buf[] = new byte[1024];
 
         try{
             socket.bind(null);
-            socket.connect((new InetSocketAddress(host, port)), 500);
+            socket.connect((new InetSocketAddress(device.deviceName, port)), 500);
 
             OutputStream outputStream = socket.getOutputStream();
-            InputStream inputStream = new ByteArrayInputStream(message.getBytes(StandardCharsets.UTF_8));
+            InputStream inputStream = new ByteArrayInputStream(message.getBytes());
             while ((len = inputStream.read(buf)) != -1){
                 outputStream.write(buf,0,len);
             }
@@ -169,8 +174,11 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
             inputStream.close();
 
         }catch(Exception e){
+            Log.d("LanChat", "Message was not recieved correctly");
             return;
         }
     }
+
+
 
 }
