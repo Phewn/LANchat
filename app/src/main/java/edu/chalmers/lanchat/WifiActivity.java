@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayInputStream;
@@ -28,16 +29,21 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 
-public class WifiActivity extends Activity implements WifiP2pManager.PeerListListener {
+public class WifiActivity extends Activity implements WifiP2pManager.PeerListListener, WifiP2pManager.ConnectionInfoListener {
+    private static final String TAG = "WIFIActivity";
     private WifiP2pManager manager;
     private Channel channel;
     private WifiBroadcastReceiver receiver;
     private IntentFilter intentFilter;
+    private TextView phones;
+    private WifiP2pDevice device;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_wifi);
+
+        phones = (TextView)findViewById(R.id.availablePhone);
 
         intentFilter = new IntentFilter();
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -65,22 +71,9 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
     }
 
     public void buttonClick(View view) {
-        switch (view.getId()) {
-            case R.id.createWifiButton:
-                manager.removeGroup(channel, null); // remove any old group if it exists.
-                manager.createGroup(channel, new WifiP2pManager.ActionListener() {
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(WifiActivity.this, "Success!", Toast.LENGTH_SHORT).show();
-                        ChatServerAsyncTask chatter = new ChatServerAsyncTask();
-                    }
-
-                    @Override
-                    public void onFailure(int reason) {
-                        Toast.makeText(WifiActivity.this, "Failure!", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                break;
+        if (view.getId() == R.id.button) {
+            String msg = "I am Legend";
+            sendChatMessage(msg, 8888);
         }
     }
 
@@ -95,6 +88,7 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
     @Override
     protected void onPause() {
         super.onPause();
+        disconnect();
         unregisterReceiver(receiver);
     }
 
@@ -123,29 +117,30 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peers) {
-        Log.d("LANChat", "Peer List");
-        Log.d("LANChat", "=========");
+        String list = "";
+
         for (WifiP2pDevice peer : peers.getDeviceList()) {
-            Log.d("LANChat", peer.deviceName);
+            list += peer.deviceName + System.getProperty("line.separator");
         }
-        Log.d("LANChat", "=========");
+
+        phones.setText(list);
+
         if ( peers.getDeviceList().iterator().hasNext()){
-            WifiP2pDevice device = peers.getDeviceList().iterator().next();
-            connectDevice(device);
+            device = peers.getDeviceList().iterator().next();
+            connectDevice();
         }
+
     }
 
-    public void connectDevice(final WifiP2pDevice device){
+    public void connectDevice(){
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
+
         manager.connect(channel, config, new WifiP2pManager.ActionListener() {
 
             @Override
             public void onSuccess() {
                 //success logic
-                String msg = "One small step";
-                Log.d("LanChat", "Connection succsess, sending message");
-                sendChatMessage(msg, device, 8888);
             }
 
             @Override
@@ -155,7 +150,7 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
         });
     }
 
-    public void sendChatMessage(String message, WifiP2pDevice device, int port){
+    public void sendChatMessage(String message, int port){
 
         int len;
         Socket socket = new Socket();
@@ -163,7 +158,7 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
 
         try{
             socket.bind(null);
-            socket.connect((new InetSocketAddress(device.deviceName, port)), 500);
+            socket.connect((new InetSocketAddress(device.deviceAddress, port)), 500);
 
             OutputStream outputStream = socket.getOutputStream();
             InputStream inputStream = new ByteArrayInputStream(message.getBytes());
@@ -180,5 +175,50 @@ public class WifiActivity extends Activity implements WifiP2pManager.PeerListLis
     }
 
 
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+        // InetAddress from WifiP2pInfo struct.
+        InetAddress groupOwnerAddress = info.groupOwnerAddress;
 
+        // After the group negotiation, we can determine the group owner.
+        if (info.groupFormed && info.isGroupOwner) {
+            // Do whatever tasks are specific to the group owner.
+            // One common case is creating a server thread and accepting
+            // incoming connections.
+            Toast.makeText(this, "I am GRUT", Toast.LENGTH_SHORT).show();
+            ChatServerAsyncTask chatter = new ChatServerAsyncTask();
+            chatter.execute();
+        } else if (info.groupFormed) {
+            // The other device acts as the client. In this case,
+            // you'll want to create a client thread that connects to the group
+            // owner.
+            Toast.makeText(this, "I am in a group", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    public void disconnect() {
+        if (manager != null && channel != null) {
+            manager.requestGroupInfo(channel, new WifiP2pManager.GroupInfoListener() {
+                @Override
+                public void onGroupInfoAvailable(WifiP2pGroup group) {
+                    if (group != null && manager != null && channel != null
+                            && group.isGroupOwner()) {
+                        manager.removeGroup(channel, new WifiP2pManager.ActionListener() {
+
+                            @Override
+                            public void onSuccess() {
+                                Log.d(TAG, "removeGroup onSuccess -");
+                            }
+
+                            @Override
+                            public void onFailure(int reason) {
+                                Log.d(TAG, "removeGroup onFailure -" + reason);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
 }
