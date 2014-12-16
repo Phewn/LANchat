@@ -11,7 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/listViewI"
-        android:background="#ffc2ff7f" />
+        android:background="#ffc2ff7f"
+        android:layout_above="@+id/linearLayout" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -19,7 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:weightSum="10"
-        android:background="#ffff8d8f">
+        android:background="#ffff8d8f"
+        android:id="@+id/linearLayout">
 
     <EditText
             android:id="@+id/chatLine"
