@@ -17,7 +17,7 @@ public class LanChatListActivity extends ListActivity {
                 "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X",
                 "Linux", "OS/2" };
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.rowlayout, R.id.label, values);
+                R.layout.rowlayout, R.id.textView, values);
         setListAdapter(adapter);
     }
 

@@ -1,7 +1,10 @@
 package edu.chalmers.lanchat;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,12 +16,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private EditText newShout;
     private ListView listViewI;
+    private TextView idName;
+    private String user;
     private ArrayList<String> listItems = new ArrayList<String>();
     private ArrayAdapter<String> adapter;
 
@@ -30,10 +37,15 @@ public class MainActivity extends ActionBarActivity {
 
         newShout = (EditText) findViewById(R.id.chatLine);
         listViewI = (ListView) findViewById(R.id.listViewI);
+        idName = (TextView) findViewById(R.id.textView2);
 
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listItems);
+        adapter = new ArrayAdapter<String>(this, R.layout.rowlayout, R.id.textView, listItems);
 
         listViewI.setAdapter(adapter);
+
+        getUsername();
+
+
 
     }
 
@@ -80,6 +92,22 @@ public class MainActivity extends ActionBarActivity {
                 updateChatbox();
                 newShout.getText().clear();
                 break;
+        }
+    }
+
+    public void getUsername() {
+        AccountManager manager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
+        Account[] list = manager.getAccounts();
+
+        for (Account item : list) {
+            if (item.type == "com.google") {
+                user = item.name;
+                return;
+            }
+        }
+
+        if (list.length != -1 && list[0] != null) {
+            user = list[0].name;
         }
     }
 }
