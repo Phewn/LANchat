@@ -33,6 +33,11 @@
         <service android:enabled="true" android:name=".ServerService" />
         <service android:enabled="true" android:name=".MessageService" />
 
+        <provider
+            android:name=".db.ClientContentProvider"
+            android:authorities="edu.chalmers.lanchat.contentprovider" >
+        </provider>
+
     </application>
 
 </manifest>
