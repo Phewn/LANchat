@@ -2,32 +2,38 @@ package edu.chalmers.lanchat;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
 
     private EditText newShout;
     private ListView listViewI;
     private TextView idName;
     private String user;
-    private ArrayList<String> listItems = new ArrayList<String>();
-    private ArrayAdapter<String> adapter;
+    private ArrayList<ChatMessage> listItems = new ArrayList<ChatMessage>();
+    private CustomAdapter adapter;
+    private int[] colorList = {Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.RED};
+    private int userColor;
+    private Random r = new Random();
 
 
     @Override
@@ -37,15 +43,18 @@ public class MainActivity extends ActionBarActivity {
 
         newShout = (EditText) findViewById(R.id.chatLine);
         listViewI = (ListView) findViewById(R.id.listViewI);
-        idName = (TextView) findViewById(R.id.textView2);
 
-        adapter = new ArrayAdapter<String>(this, R.layout.rowlayout, R.id.textView, listItems);
+        listViewI.setOnItemClickListener(this);
+
+        adapter = new CustomAdapter(this, listItems);
 
         listViewI.setAdapter(adapter);
 
+        user = "";
+
+        userColor = colorList[r.nextInt(colorList.length)];
+
         getUsername();
-
-
 
     }
 
@@ -78,9 +87,15 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void updateChatbox() {
-        String txt = newShout.getText().toString();
-        if (txt != "") {
-            listItems.add(txt);
+        String message = newShout.getText().toString();
+        if (message != "") {
+            if(user == null){
+                user = "";
+            }
+
+            ChatMessage chatObject = new ChatMessage(user, userColor);
+            chatObject.setMessage(message);
+            listItems.add(chatObject);
             adapter.notifyDataSetChanged();
         }
         return;
@@ -96,19 +111,19 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void getUsername() {
-        AccountManager manager = (AccountManager) getSystemService(ACCOUNT_SERVICE);
-        Account[] list = manager.getAccounts();
+        Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        c.moveToFirst();
+        user = c.getString(c.getColumnIndex("display_name"));
+        c.close();
+    }
 
-        for (Account item : list) {
-            if (item.type == "com.google") {
-                user = item.name;
-                return;
-            }
-        }
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        /*
+        ChatMessage chatMessage  = adapter.getItem(position);
+        chatMessage.setPopularity(+1);
+        */
 
-        if (list.length != -1 && list[0] != null) {
-            user = list[0].name;
-        }
     }
 }
 
