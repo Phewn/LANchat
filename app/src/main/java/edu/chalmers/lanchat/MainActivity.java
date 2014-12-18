@@ -1,7 +1,5 @@
 package edu.chalmers.lanchat;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.provider.ContactsContract;
@@ -11,15 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 
@@ -119,10 +113,15 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        /*
+
         ChatMessage chatMessage  = adapter.getItem(position);
-        chatMessage.setPopularity(+1);
-        */
+        float pop = chatMessage.getPopularity();
+
+        pop += 1;
+        
+        chatMessage.setPopularity(pop);
+        adapter.notifyDataSetChanged();
+
 
     }
 }

@@ -1,15 +1,14 @@
 package edu.chalmers.lanchat;
 
-import android.graphics.Color;
 
-/**
- * Created by oliver on 14-12-17.
- */
 public class ChatMessage {
     private String name;
     private String message;
     private int color;
     private float popularity = 0;
+    private float stdTextSize = 14;
+    private float textSize = 14;
+    private float popMultiple = 5;
 
     public ChatMessage(int color){
         name = "Anonymous";
@@ -19,19 +18,21 @@ public class ChatMessage {
 
     public ChatMessage(String name, int color){
         if (name != ""){
-            this.name = name;
+            this.name = name + ": ";
         }
         else {
-            this.name = "Anonymous";
+            this.name = "Anonymous: ";
         }
         this.color = color;
     }
 
     public void setName(String name){
+
         this.name = name;
     }
 
     public void setMessage(String message){
+
         this.message = message;
     }
 
@@ -41,6 +42,7 @@ public class ChatMessage {
 
     public void setPopularity(float i){
         this.popularity = i;
+        textSize = stdTextSize + (i*popMultiple);
     }
 
     public String getName(){
@@ -57,5 +59,9 @@ public class ChatMessage {
 
     public float getPopularity(){
         return popularity;
+    }
+
+    public float getTextSize(){
+        return textSize;
     }
 }
