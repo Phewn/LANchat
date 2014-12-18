@@ -1,26 +1,19 @@
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
-import android.app.Activity;
 import android.app.IntentService;
-import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import edu.chalmers.lanchat.db.ClientContentProvider;
@@ -55,7 +48,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
         cursorLoader.registerListener(0, this);
         cursorLoader.startLoading();
 
-        localIP = Utils.getLocalIPAddress();
+        localIP = IpUtils.getLocalIPAddress();
     }
 
     @Override

@@ -1,6 +1,6 @@
 // Copyright 2011 Google Inc. All Rights Reserved.
 
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.app.IntentService;
 import android.content.ContentResolver;

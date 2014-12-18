@@ -1,4 +1,4 @@
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.util.Log;
 
@@ -11,7 +11,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
-public class Utils {
+public class IpUtils {
 
 	private final static String p2pInt = "p2p-p2p0";
 

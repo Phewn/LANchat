@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -25,6 +25,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.WifiP2pManager.Channel;
 import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.util.Log;
+
+import edu.chalmers.lanchat.R;
 
 /**
  * A BroadcastReceiver that notifies of important wifi p2p events.

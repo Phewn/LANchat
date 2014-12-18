@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.app.Activity;
 import android.app.LoaderManager;
@@ -40,7 +40,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import edu.chalmers.lanchat.DeviceListFragment.DeviceActionListener;
+import edu.chalmers.lanchat.connect.DeviceListFragment.DeviceActionListener;
+import edu.chalmers.lanchat.R;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
 

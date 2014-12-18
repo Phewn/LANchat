@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.app.Fragment;
 import android.app.ProgressDialog;
@@ -43,7 +43,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import edu.chalmers.lanchat.DeviceListFragment.DeviceActionListener;
+import edu.chalmers.lanchat.R;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device
@@ -90,7 +90,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 						//                            }
 						//                        }
 				);
-				((DeviceActionListener) getActivity()).connect(config);
+				((DeviceListFragment.DeviceActionListener) getActivity()).connect(config);
 
 			}
 		});
@@ -100,7 +100,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 					@Override
 					public void onClick(View v) {
-						((DeviceActionListener) getActivity()).disconnect();
+						((DeviceListFragment.DeviceActionListener) getActivity()).disconnect();
 					}
 				});
 
@@ -124,10 +124,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		String localIP = Utils.getLocalIPAddress();
+		String localIP = IpUtils.getLocalIPAddress();
 		// Trick to find the ip in the file /proc/net/arp
 		String client_mac_fixed = new String(device.deviceAddress).replace("99", "19");
-		String clientIP = Utils.getIPFromMac(client_mac_fixed);
+		String clientIP = IpUtils.getIPFromMac(client_mac_fixed);
 
 		// User has picked an image. Transfer it to group owner i.e peer using
 		// FileTransferService.
@@ -185,7 +185,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
             addressIntent.setAction(MessageService.ACTION_SEND);
             addressIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
             addressIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
-            addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + Utils.getLocalIPAddress());
+            addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + IpUtils.getLocalIPAddress());
             getActivity().startService(addressIntent);
 		}
 

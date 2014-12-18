@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.app.ListFragment;
 import android.app.ProgressDialog;
@@ -35,6 +35,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import edu.chalmers.lanchat.R;
 
 /**
  * A ListFragment that displays available peers on discovery and requests the

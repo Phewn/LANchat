@@ -1,4 +1,4 @@
-package edu.chalmers.lanchat;
+package edu.chalmers.lanchat.connect;
 
 import android.app.IntentService;
 import android.content.Intent;
