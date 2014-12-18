@@ -5,8 +5,6 @@ import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
-import android.util.Size;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +34,7 @@ public class CustomAdapter extends ArrayAdapter<ChatMessage> {
             rowView = inflater.inflate(R.layout.rowlayout, null);
             // configure view holder
             ViewHolder viewHolder = new ViewHolder();
-            viewHolder.textViewName = (TextView) rowView.findViewById(R.id.textViewName);
+            viewHolder.textViewNameAndMessage = (TextView) rowView.findViewById(R.id.textViewNameAndMessage);
             rowView.setTag(viewHolder);
 
         }
@@ -51,8 +49,8 @@ public class CustomAdapter extends ArrayAdapter<ChatMessage> {
         Spannable nameAndMessage = new SpannableString(name + message);
         nameAndMessage.setSpan(new ForegroundColorSpan(getItem(position).getColor()),0,name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        holder.textViewName.setText(nameAndMessage);
-        holder.textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        holder.textViewNameAndMessage.setText(nameAndMessage);
+        holder.textViewNameAndMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 
 
         return rowView;
@@ -60,7 +58,6 @@ public class CustomAdapter extends ArrayAdapter<ChatMessage> {
 
 
     static class ViewHolder {
-        public TextView textViewMessage;
-        public TextView textViewName;
+        public TextView textViewNameAndMessage;
     }
 }

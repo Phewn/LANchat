@@ -5,7 +5,7 @@ public class ChatMessage {
     private String name;
     private String message;
     private int color;
-    private float popularity = 0;
+    private float popularity = 1;
     private float stdTextSize = 14;
     private float textSize = 14;
     private float popMultiple = 5;
@@ -42,7 +42,7 @@ public class ChatMessage {
 
     public void setPopularity(float i){
         this.popularity = i;
-        textSize = stdTextSize + (i*popMultiple);
+        textSize = (float) (stdTextSize + popMultiple*Math.log(i));
     }
 
     public String getName(){

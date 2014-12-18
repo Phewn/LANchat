@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:text="@string/textViewName"
             android:textSize="14sp"
-            android:id="@+id/textViewName" />
+            android:id="@+id/textViewNameAndMessage" />
 
     </LinearLayout>
 

@@ -5,9 +5,12 @@ import android.graphics.Color;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -39,6 +42,18 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         listViewI = (ListView) findViewById(R.id.listViewI);
 
         listViewI.setOnItemClickListener(this);
+
+        listViewI.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                updateRowSize();
+            }
+        });
 
         adapter = new CustomAdapter(this, listItems);
 
@@ -82,7 +97,8 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
 
     public void updateChatbox() {
         String message = newShout.getText().toString();
-        if (message != "") {
+        message = "Det här är en ganska tråkig mening tycker jag nog faktiskt!";
+        if (!message.equals("")) {
             if(user == null){
                 user = "";
             }
@@ -122,7 +138,28 @@ public class MainActivity extends ActionBarActivity implements AdapterView.OnIte
         chatMessage.setPopularity(pop);
         adapter.notifyDataSetChanged();
 
+    }
 
+    public void updateRowSize(){
+        int startPos = listViewI.getLastVisiblePosition();
+        int lastPos = listViewI.getFirstVisiblePosition();
+        Log.d("StartPos", startPos + "");
+        Log.d("LastPos", lastPos + "");
+
+
+        int x = listViewI.getChildCount();
+        for (int i = startPos; i >= lastPos; i--) {
+            if (true) {
+                View view = listViewI.getChildAt(i);
+                Log.d("New scale", i + "");
+
+                if (startPos == 21)
+                    Log.d("asdf", "sadf");
+
+                TextView text = (TextView) view.findViewById(R.id.textViewNameAndMessage);
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+            }
+        }
     }
 }
 
