@@ -109,23 +109,11 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 					@Override
 					public void onClick(View v) {
-                        String localIP = Utils.getLocalIPAddress();
-                        // Trick to find the ip in the file /proc/net/arp
-                        String client_mac_fixed = new String(device.deviceAddress).replace("99", "19");
-                        String clientIP = Utils.getIPFromMac(client_mac_fixed);
-
                         Intent serviceIntent = new Intent(getActivity(), MessageService.class);
-                        serviceIntent.setAction(MessageService.ACTION_SEND_ADDRESS);
-
-                        if(localIP.equals(IP_SERVER)){
-                            serviceIntent.putExtra(MessageService.EXTRAS_ADDRESS, clientIP);
-                        } else {
-                            serviceIntent.putExtra(MessageService.EXTRAS_ADDRESS, IP_SERVER);
-                        }
-
+                        serviceIntent.setAction(MessageService.ACTION_SEND);
+                        serviceIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
                         serviceIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
                         serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, "This is the message!");
-
                         getActivity().startService(serviceIntent);
 					}
 				});
@@ -184,13 +172,21 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		if (!server_running){
 			//new ServerAsyncTask(getActivity(), mContentView.findViewById(R.id.status_text)).execute();
 
-            Intent serviceIntent = new Intent(getActivity(), ServerService.class);
-            serviceIntent.setAction(ServerService.ACTION_RECEIVE);
-
-            serviceIntent.putExtra(ServerService.EXTRAS_PORT, PORT);
-            getActivity().startService(serviceIntent);
-
+            Intent serverIntent = new Intent(getActivity(), ServerService.class);
+            serverIntent.setAction(ServerService.ACTION_RECEIVE);
+            serverIntent.putExtra(ServerService.EXTRAS_PORT, PORT);
+            serverIntent.putExtra(ServerService.EXTRAS_ECHO, info.isGroupOwner);
+            getActivity().startService(serverIntent);
 			server_running = true;
+
+
+            // Notify group owner of your IP address
+            Intent addressIntent = new Intent(getActivity(), MessageService.class);
+            addressIntent.setAction(MessageService.ACTION_SEND);
+            addressIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
+            addressIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
+            addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + Utils.getLocalIPAddress());
+            getActivity().startService(addressIntent);
 		}
 
 		// hide the connect button
@@ -212,7 +208,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 	}
 
 	/**
-	 * Clears the UI fields after a disconnect or direct mode disable operation.
+	 * Clears the UI fields after a disconnect or direct mode disabl§e operation.
 	 */
 	public void resetViews() {
 		mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);

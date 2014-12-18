@@ -29,13 +29,16 @@ import edu.chalmers.lanchat.db.ClientTable;
 
 public class ServerService extends IntentService implements Loader.OnLoadCompleteListener<Cursor> {
     public static final String EXTRAS_PORT = "EXTRAS_PORT";
+    public static final String EXTRAS_ECHO = "EXTRAS_ECHO";
     public static final String ACTION_RECEIVE = "ACTION_RECEIVE";
 
     public static final String TAG = "ServerService";
-    private Handler handler;
+    public static final int PORT = 8988;
 
-    private List<String> clients = new ArrayList<>();
+    private Handler handler;
     private CursorLoader cursorLoader;
+    private Cursor cursor;
+    private String localIP;
 
     public ServerService() {
         super(TAG);
@@ -50,6 +53,8 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
         cursorLoader = new CursorLoader(this, ClientContentProvider.CONTENT_URI, projection, null, null, null);
         cursorLoader.registerListener(0, this);
         cursorLoader.startLoading();
+
+        localIP = Utils.getLocalIPAddress();
     }
 
     @Override
@@ -69,6 +74,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
     protected void onHandleIntent(Intent intent) {
         Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_RECEIVE)) {
+            boolean echo = intent.getBooleanExtra(EXTRAS_ECHO, false);
             int port = intent.getExtras().getInt(EXTRAS_PORT);
 
             try {
@@ -95,6 +101,19 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
                         ContentValues values = new ContentValues();
                         values.put(ClientTable.COLUMN_IP, message.substring(1));
                         getContentResolver().insert(ClientContentProvider.CONTENT_URI, values);
+                    } else if (echo && cursor != null){
+                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                            String host = cursor.getString(cursor.getColumnIndex(ClientTable.COLUMN_IP));
+
+                            if ( !(host.equals(socket.getInetAddress().getHostName()) || host.equals(localIP)) ) {
+                                Intent echoIntent = new Intent(this, MessageService.class);
+                                echoIntent.setAction(MessageService.ACTION_SEND);
+                                echoIntent.putExtra(MessageService.EXTRAS_HOST, host);
+                                echoIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
+                                echoIntent.putExtra(MessageService.EXTRAS_MESSAGE, message);
+                                startService(echoIntent);
+                            }
+                        }
                     }
 
                     scanner.close();
@@ -112,5 +131,6 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
     @Override
     public void onLoadComplete(Loader<Cursor> loader, Cursor data) {
         Log.d(TAG, "# database entries: " + data.getCount());
+        cursor = data;
     }
 }
