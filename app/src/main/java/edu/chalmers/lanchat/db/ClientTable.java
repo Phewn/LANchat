@@ -15,7 +15,7 @@ public class ClientTable {
             + TABLE_CLIENT
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_IP + " text not null "
+            + COLUMN_IP + " text unique not null "
             + ");";
 
     public static void onCreate(SQLiteDatabase database) {

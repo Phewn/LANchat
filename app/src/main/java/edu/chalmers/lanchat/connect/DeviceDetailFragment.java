@@ -43,6 +43,7 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import edu.chalmers.lanchat.ChatActivity;
 import edu.chalmers.lanchat.R;
 
 /**
@@ -106,16 +107,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 		mContentView.findViewById(R.id.btn_start_client).setOnClickListener(
 				new View.OnClickListener() {
-
 					@Override
-					public void onClick(View v) {
-                        Intent serviceIntent = new Intent(getActivity(), MessageService.class);
-                        serviceIntent.setAction(MessageService.ACTION_SEND);
-                        serviceIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
-                        serviceIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
-                        serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, "This is the message!");
-                        getActivity().startService(serviceIntent);
-					}
+					public void onClick(View v) {}
 				});
 
 		return mContentView;
@@ -123,34 +116,16 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-		String localIP = IpUtils.getLocalIPAddress();
-		// Trick to find the ip in the file /proc/net/arp
-		String client_mac_fixed = new String(device.deviceAddress).replace("99", "19");
-		String clientIP = IpUtils.getIPFromMac(client_mac_fixed);
-
-		// User has picked an image. Transfer it to group owner i.e peer using
-		// FileTransferService.
-		Uri uri = data.getData();
-		TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
-		statusText.setText("Sending: " + uri);
-		Log.d(WiFiDirectActivity.TAG, "Intent----------- " + uri);
-		Intent serviceIntent = new Intent(getActivity(), FileTransferService.class);
-		serviceIntent.setAction(FileTransferService.ACTION_SEND_FILE);
-		serviceIntent.putExtra(FileTransferService.EXTRAS_FILE_PATH, uri.toString());
-
-		if(localIP.equals(IP_SERVER)){
-			serviceIntent.putExtra(FileTransferService.EXTRAS_ADDRESS, clientIP);
-		}else{
-			serviceIntent.putExtra(FileTransferService.EXTRAS_ADDRESS, IP_SERVER);
-		}
-
-		serviceIntent.putExtra(FileTransferService.EXTRAS_PORT, PORT);
-		getActivity().startService(serviceIntent);
+        getActivity().stopService(new Intent(getActivity(), ServerService.class));
+        ((DeviceListFragment.DeviceActionListener) getActivity()).disconnect();
 	}
 
 	@Override
 	public void onConnectionInfoAvailable(final WifiP2pInfo info) {
+        if (!info.groupFormed) {
+            return;
+        }
+
 		if (progressDialog != null && progressDialog.isShowing()) {
 			progressDialog.dismiss();
 		}
@@ -180,17 +155,23 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 			server_running = true;
 
 
-            // Notify group owner of your IP address
-            Intent addressIntent = new Intent(getActivity(), MessageService.class);
-            addressIntent.setAction(MessageService.ACTION_SEND);
-            addressIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
-            addressIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
-            addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + IpUtils.getLocalIPAddress());
-            getActivity().startService(addressIntent);
+            if (!info.isGroupOwner) {
+                // Notify group owner of your IP address
+                Intent addressIntent = new Intent(getActivity(), MessageService.class);
+                addressIntent.setAction(MessageService.ACTION_SEND);
+                addressIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
+                addressIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
+                addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + IpUtils.getLocalIPAddress());
+                getActivity().startService(addressIntent);
+            }
 		}
 
 		// hide the connect button
 		mContentView.findViewById(R.id.btn_connect).setVisibility(View.GONE);
+
+        Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
+        chatIntent.putExtra(ChatActivity.EXTRA_GROUP_OWNER, info.isGroupOwner);
+        startActivityForResult(chatIntent, 0);
 	}
 
 	/**

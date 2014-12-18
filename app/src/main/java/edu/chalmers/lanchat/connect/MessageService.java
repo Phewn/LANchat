@@ -21,6 +21,9 @@ public class MessageService extends IntentService {
     public static final String EXTRAS_PORT = "EXTRAS_PORT";
     public static final String EXTRAS_MESSAGE = "EXTRAS_MESSAGE";
 
+    public static final String IP_SERVER = "192.168.49.1";
+    public static int PORT = 8988;
+
     private static final int SOCKET_TIMEOUT = 5000;
 
     public MessageService() {
@@ -30,8 +33,8 @@ public class MessageService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent.getAction().equals(ACTION_SEND)) {
-            String host = intent.getExtras().getString(EXTRAS_HOST);
-            int port = intent.getExtras().getInt(EXTRAS_PORT);
+            String host = intent.getExtras().getString(EXTRAS_HOST, IP_SERVER);
+            int port = intent.getExtras().getInt(EXTRAS_PORT, PORT);
             String message = intent.getExtras().getString(EXTRAS_MESSAGE);
             Socket socket = new Socket();
 

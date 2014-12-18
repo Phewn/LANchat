@@ -103,7 +103,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
                         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
                             String host = cursor.getString(0 /*IP column*/);
 
-                            if ( !(host.equals(socket.getInetAddress().getHostName()) || host.equals(localIP)) ) {
+                            if ( !(host.equals(localIP)) /*|| host.equals(client.getInetAddress().getHostName()) */) {
                                 Intent echoIntent = new Intent(this, MessageService.class);
                                 echoIntent.setAction(MessageService.ACTION_SEND);
                                 echoIntent.putExtra(MessageService.EXTRAS_HOST, host);
