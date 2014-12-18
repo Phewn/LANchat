@@ -25,6 +25,8 @@ import java.util.Scanner;
 
 import edu.chalmers.lanchat.db.ClientContentProvider;
 import edu.chalmers.lanchat.db.ClientTable;
+import edu.chalmers.lanchat.db.MessageContentProvider;
+import edu.chalmers.lanchat.db.MessageTable;
 
 
 public class ServerService extends IntentService implements Loader.OnLoadCompleteListener<Cursor> {
@@ -47,9 +49,8 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
     @Override
     public void onCreate() {
         super.onCreate();
-        handler = new Handler();
 
-        String[] projection = { ClientTable.COLUMN_ID, ClientTable.COLUMN_IP };
+        String[] projection = { ClientTable.COLUMN_IP };
         cursorLoader = new CursorLoader(this, ClientContentProvider.CONTENT_URI, projection, null, null, null);
         cursorLoader.registerListener(0, this);
         cursorLoader.startLoading();
@@ -87,23 +88,27 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
                     InputStream inputStream = client.getInputStream();
                     Scanner scanner = new Scanner( inputStream ).useDelimiter("\\A");
                     final String message = scanner.next();
+                    scanner.close();
+                    inputStream.close();
                     Log.d(TAG, message);
 
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ServerService.this, message, Toast.LENGTH_LONG).show();
-                        }
-                    });
+                    boolean isAdminMessage = message.charAt(0) == '&';
 
-                    if (message.charAt(0) == '&') {
+                    if (isAdminMessage) {
                         // save to database
                         ContentValues values = new ContentValues();
                         values.put(ClientTable.COLUMN_IP, message.substring(1));
                         getContentResolver().insert(ClientContentProvider.CONTENT_URI, values);
-                    } else if (echo && cursor != null){
+                    } else {
+                        ContentValues values = new ContentValues();
+                        values.put(MessageTable.COLUMN_MESSAGE, message);
+                        getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+                    }
+
+                    // Echo the message to connected clients
+                    if (!isAdminMessage && echo && cursor != null){
                         for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                            String host = cursor.getString(cursor.getColumnIndex(ClientTable.COLUMN_IP));
+                            String host = cursor.getString(0 /*IP column*/);
 
                             if ( !(host.equals(socket.getInetAddress().getHostName()) || host.equals(localIP)) ) {
                                 Intent echoIntent = new Intent(this, MessageService.class);
@@ -116,10 +121,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
                         }
                     }
 
-                    scanner.close();
-                    inputStream.close();
                     client.close();
-                    //stopSelf(); // TODO: Remove
                 }
 
             } catch (IOException e) {

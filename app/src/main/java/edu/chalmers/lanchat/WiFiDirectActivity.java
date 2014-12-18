@@ -17,10 +17,14 @@
 package edu.chalmers.lanchat;
 
 import android.app.Activity;
+import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.Loader;
+import android.database.Cursor;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -37,6 +41,8 @@ import android.view.View;
 import android.widget.Toast;
 
 import edu.chalmers.lanchat.DeviceListFragment.DeviceActionListener;
+import edu.chalmers.lanchat.db.MessageContentProvider;
+import edu.chalmers.lanchat.db.MessageTable;
 
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
@@ -45,7 +51,7 @@ import edu.chalmers.lanchat.DeviceListFragment.DeviceActionListener;
  * The application should also register a BroadcastReceiver for notification of
  * WiFi state related events.
  */
-public class WiFiDirectActivity extends Activity implements ChannelListener, DeviceActionListener {
+public class WiFiDirectActivity extends Activity implements ChannelListener, DeviceActionListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String TAG = "LANChat";
     private WifiP2pManager manager;
@@ -77,6 +83,8 @@ public class WiFiDirectActivity extends Activity implements ChannelListener, Dev
 
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(this, getMainLooper(), null);
+
+        getLoaderManager().initLoader(0, null, this);
     }
 
     /** register the BroadcastReceiver with the intent values to be matched */
@@ -261,5 +269,32 @@ public class WiFiDirectActivity extends Activity implements ChannelListener, Dev
             }
         }
 
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection = { MessageTable.COLUMN_ID, MessageTable.COLUMN_MESSAGE };
+        CursorLoader cursorLoader = new CursorLoader(this, MessageContentProvider.CONTENT_URI, projection, null, null, null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        String message = "";
+        for (data.moveToFirst(); !data.isAfterLast(); data.moveToNext()) {
+            message += data.getString(1) + "\n";
+        }
+        message = message.trim();
+        if (message.length() > 50) {
+            message = message.substring(message.length()-50);
+        }
+        Log.d(TAG, message);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // data is not available anymore, delete reference
+        //adapter.swapCursor(null);
     }
 }

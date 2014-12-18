@@ -17,6 +17,7 @@ public class LanchatDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         ClientTable.onCreate(database);
+        MessageTable.onCreate(database);
     }
 
     // Method is called during an upgrade of the database,
@@ -24,6 +25,7 @@ public class LanchatDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         ClientTable.onUpgrade(database, oldVersion, newVersion);
+        MessageTable.onUpgrade(database, oldVersion, newVersion);
     }
 }
 

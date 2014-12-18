@@ -35,7 +35,11 @@
 
         <provider
             android:name=".db.ClientContentProvider"
-            android:authorities="edu.chalmers.lanchat.contentprovider" >
+            android:authorities="edu.chalmers.lanchat.clientprovider" >
+        </provider>
+        <provider
+            android:name=".db.MessageContentProvider"
+            android:authorities="edu.chalmers.lanchat.messageprovider" >
         </provider>
 
     </application>

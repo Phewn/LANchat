@@ -13,28 +13,28 @@ import android.text.TextUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 
-public class ClientContentProvider extends ContentProvider {
+public class MessageContentProvider extends ContentProvider {
 
     // database
     private LanchatDatabaseHelper database;
 
     // used for the UriMacher
-    private static final int CLIENTS = 10;
-    private static final int CLIENT_ID = 20;
+    private static final int MESSAGES = 30;
+    private static final int MESSAGE_ID = 40;
 
-    private static final String AUTHORITY = "edu.chalmers.lanchat.clientprovider";
-    private static final String BASE_PATH = "clients";
+    private static final String AUTHORITY = "edu.chalmers.lanchat.messageprovider";
+    private static final String BASE_PATH = "messages";
     
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
 
-    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/clients";
-    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/client";
+    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/messages";
+    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/message";
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
     static {
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH, CLIENTS);
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", CLIENT_ID);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH, MESSAGES);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", MESSAGE_ID);
     }
 
     @Override
@@ -53,15 +53,15 @@ public class ClientContentProvider extends ContentProvider {
         checkColumns(projection);
 
         // Set the table
-        queryBuilder.setTables(ClientTable.TABLE_CLIENT);
+        queryBuilder.setTables(MessageTable.TABLE_MESSAGE);
 
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
-            case CLIENTS:
+            case MESSAGES:
                 break;
-            case CLIENT_ID:
+            case MESSAGE_ID:
                 // adding the ID to the original query
-                queryBuilder.appendWhere(ClientTable.COLUMN_ID + "=" + uri.getLastPathSegment());
+                queryBuilder.appendWhere(MessageTable.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -87,8 +87,8 @@ public class ClientContentProvider extends ContentProvider {
         int rowsDeleted = 0;
         long id = 0;
         switch (uriType) {
-            case CLIENTS:
-                id = sqlDB.insert(ClientTable.TABLE_CLIENT, null, values);
+            case MESSAGES:
+                id = sqlDB.insert(MessageTable.TABLE_MESSAGE, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -103,19 +103,19 @@ public class ClientContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsDeleted = 0;
         switch (uriType) {
-            case CLIENTS:
-                rowsDeleted = sqlDB.delete(ClientTable.TABLE_CLIENT, selection,
+            case MESSAGES:
+                rowsDeleted = sqlDB.delete(MessageTable.TABLE_MESSAGE, selection,
                         selectionArgs);
                 break;
-            case CLIENT_ID:
+            case MESSAGE_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    rowsDeleted = sqlDB.delete(ClientTable.TABLE_CLIENT,
-                            ClientTable.COLUMN_ID + "=" + id,
+                    rowsDeleted = sqlDB.delete(MessageTable.TABLE_MESSAGE,
+                            MessageTable.COLUMN_ID + "=" + id,
                             null);
                 } else {
-                    rowsDeleted = sqlDB.delete(ClientTable.TABLE_CLIENT,
-                            ClientTable.COLUMN_ID + "=" + id
+                    rowsDeleted = sqlDB.delete(MessageTable.TABLE_MESSAGE,
+                            MessageTable.COLUMN_ID + "=" + id
                                     + " and " + selection,
                             selectionArgs);
                 }
@@ -134,23 +134,23 @@ public class ClientContentProvider extends ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsUpdated = 0;
         switch (uriType) {
-            case CLIENTS:
-                rowsUpdated = sqlDB.update(ClientTable.TABLE_CLIENT,
+            case MESSAGES:
+                rowsUpdated = sqlDB.update(MessageTable.TABLE_MESSAGE,
                         values,
                         selection,
                         selectionArgs);
                 break;
-            case CLIENT_ID:
+            case MESSAGE_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(ClientTable.TABLE_CLIENT,
+                    rowsUpdated = sqlDB.update(MessageTable.TABLE_MESSAGE,
                             values,
-                            ClientTable.COLUMN_ID + "=" + id,
+                            MessageTable.COLUMN_ID + "=" + id,
                             null);
                 } else {
-                    rowsUpdated = sqlDB.update(ClientTable.TABLE_CLIENT,
+                    rowsUpdated = sqlDB.update(MessageTable.TABLE_MESSAGE,
                             values,
-                            ClientTable.COLUMN_ID + "=" + id
+                            MessageTable.COLUMN_ID + "=" + id
                                     + " and "
                                     + selection,
                             selectionArgs);
@@ -164,7 +164,7 @@ public class ClientContentProvider extends ContentProvider {
     }
 
     private void checkColumns(String[] projection) {
-        String[] available = { ClientTable.COLUMN_IP, ClientTable.COLUMN_ID };
+        String[] available = { MessageTable.COLUMN_MESSAGE, MessageTable.COLUMN_ID };
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
             HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(available));
