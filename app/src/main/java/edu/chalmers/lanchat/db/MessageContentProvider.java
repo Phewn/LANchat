@@ -15,6 +15,9 @@ import java.util.HashSet;
 
 import edu.chalmers.lanchat.Message;
 
+/**
+ * Provides access to the Message table in the database.
+ */
 public class MessageContentProvider extends ContentProvider {
 
     // database
@@ -165,6 +168,10 @@ public class MessageContentProvider extends ContentProvider {
         return rowsUpdated;
     }
 
+    /**
+     * Makes sure that columns are not asked for that doesn't exist.
+     * @param projection
+     */
     private void checkColumns(String[] projection) {
         String[] available = {MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE, MessageTable.COLUMN_ID };
         if (projection != null) {

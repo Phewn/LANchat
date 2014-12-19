@@ -3,7 +3,7 @@ package edu.chalmers.lanchat;
 import java.util.Date;
 
 /**
- * Created by Daniel on 12/19/2014.
+ * Defines what an ordinary chat message looks like and what different kinds exists.
  */
 public class ChatMessage extends Message {
 

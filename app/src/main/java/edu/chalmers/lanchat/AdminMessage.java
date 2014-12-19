@@ -1,7 +1,7 @@
 package edu.chalmers.lanchat;
 
 /**
- * Created by Daniel on 12/19/2014.
+ * Defines what an admin message looks like and what different kinds exists.
  */
 public class AdminMessage extends Message {
     public static enum Type {

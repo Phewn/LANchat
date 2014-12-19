@@ -3,6 +3,10 @@ package edu.chalmers.lanchat.db;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+/**
+ * Contract class for the table of clients. Mostly exists just to define some constant
+ * names and ids.
+ */
 public class ClientTable {
 
     // Database table

@@ -44,23 +44,27 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         chatList = (ListView) findViewById(R.id.chatList);
 
+        // Subscribe to the message database table
         String[] from = new String[] { MessageTable.COLUMN_MESSAGE };
         int[] to = new int[] { android.R.id.text1 };
         getLoaderManager().initLoader(0, null, this);
-        adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, 0);
 
+        // Make the list reflect the database
+        adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, 0);
         chatList.setAdapter(adapter);
 
         groupOwnerText = (TextView) findViewById(R.id.groupOwnerText);
 
+        // Make it visible whether the phone acts as server or client.
         if (getIntent().getBooleanExtra(EXTRA_GROUP_OWNER, false)) {
-            groupOwnerText.setText("Owner");
+            groupOwnerText.setText("Server");
         } else {
             groupOwnerText.setText("Client");
         }
 
 
         inputText = (EditText) findViewById(R.id.inputText);
+
         sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,18 +72,25 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 String input = inputText.getText().toString().trim();
                 if (input.length() > 0) {
 
+                    // For now, send the ip as username
                     ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
 
+                    // Send the message to the server
                     Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
                     serviceIntent.setAction(MessageService.ACTION_SEND);
                     serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, message.toJson());
                     startService(serviceIntent);
                 }
+                // Clear the input field
                 inputText.setText("");
             }
         });
     }
 
+    /**
+     * Override the back button pressed in order to send back an empty result to the activity
+     * which started this one.
+     */
     @Override
     public void onBackPressed() {
         // Make sure the activity gets notified when finishing

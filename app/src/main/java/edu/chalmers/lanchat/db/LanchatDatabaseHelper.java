@@ -4,6 +4,9 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * Database helper which allows us to access the apps SQLite database.
+ */
 public class LanchatDatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "lanchat.db";
