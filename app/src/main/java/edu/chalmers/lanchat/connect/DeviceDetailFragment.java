@@ -43,7 +43,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import edu.chalmers.lanchat.AdminMessage;
 import edu.chalmers.lanchat.ChatActivity;
+import edu.chalmers.lanchat.Message;
 import edu.chalmers.lanchat.R;
 
 /**
@@ -157,11 +159,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
             if (!info.isGroupOwner) {
                 // Notify group owner of your IP address
+                Message ipMessage = new AdminMessage(AdminMessage.MessageType.IP_NOTIFICATION, IpUtils.getLocalIPAddress());
+
                 Intent addressIntent = new Intent(getActivity(), MessageService.class);
                 addressIntent.setAction(MessageService.ACTION_SEND);
                 addressIntent.putExtra(MessageService.EXTRAS_HOST, IP_SERVER);
                 addressIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
-                addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, "&" + IpUtils.getLocalIPAddress());
+                addressIntent.putExtra(MessageService.EXTRAS_MESSAGE, ipMessage.toJson());
                 getActivity().startService(addressIntent);
             }
 		}

@@ -8,6 +8,7 @@ public class MessageTable {
     // Database table
     public static final String TABLE_MESSAGE = "message";
     public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_NAME = "name";
     public static final String COLUMN_MESSAGE = "message";
 
     // Database creation SQL statement
@@ -15,6 +16,7 @@ public class MessageTable {
             + TABLE_MESSAGE
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
+            + COLUMN_NAME + " text not null, "
             + COLUMN_MESSAGE + " text not null "
             + ");";
 

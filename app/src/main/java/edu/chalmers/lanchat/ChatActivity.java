@@ -2,12 +2,10 @@ package edu.chalmers.lanchat;
 
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +16,10 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
+import edu.chalmers.lanchat.connect.IpUtils;
 import edu.chalmers.lanchat.connect.MessageService;
-import edu.chalmers.lanchat.db.ClientContentProvider;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
 
@@ -33,11 +33,14 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private Button sendButton;
     private EditText inputText;
     private TextView groupOwnerText;
+    private Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        gson = new Gson();
 
         chatList = (ListView) findViewById(R.id.chatList);
 
@@ -62,11 +65,14 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = inputText.getText().toString().trim();
-                if (message.length() > 0) {
+                String input = inputText.getText().toString().trim();
+                if (input.length() > 0) {
+
+                    ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
+
                     Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
                     serviceIntent.setAction(MessageService.ACTION_SEND);
-                    serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, message);
+                    serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, message.toJson());
                     startService(serviceIntent);
                 }
                 inputText.setText("");

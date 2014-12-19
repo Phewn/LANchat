@@ -10,12 +10,19 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+import edu.chalmers.lanchat.AdminMessage;
+import edu.chalmers.lanchat.ChatMessage;
+import edu.chalmers.lanchat.Message;
 import edu.chalmers.lanchat.db.ClientContentProvider;
 import edu.chalmers.lanchat.db.ClientTable;
 import edu.chalmers.lanchat.db.MessageContentProvider;
@@ -34,6 +41,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
     private CursorLoader cursorLoader;
     private Cursor cursor;
     private String localIP;
+    private Gson gson;
 
     public ServerService() {
         super(TAG);
@@ -42,6 +50,8 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
     @Override
     public void onCreate() {
         super.onCreate();
+
+        gson = new Gson();
 
         String[] projection = { ClientTable.COLUMN_IP };
         cursorLoader = new CursorLoader(this, ClientContentProvider.CONTENT_URI, projection, null, null, null);
@@ -80,39 +90,19 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
                     Log.d(TAG, "Server socket accepting");
                     InputStream inputStream = client.getInputStream();
                     Scanner scanner = new Scanner( inputStream ).useDelimiter("\\A");
-                    final String message = scanner.next();
+                    final String json = scanner.next();
                     scanner.close();
                     inputStream.close();
-                    Log.d(TAG, message);
+                    Log.d(TAG, json);
 
-                    boolean isAdminMessage = message.charAt(0) == '&';
-
-                    if (isAdminMessage) {
-                        // save to database
-                        ContentValues values = new ContentValues();
-                        values.put(ClientTable.COLUMN_IP, message.substring(1));
-                        getContentResolver().insert(ClientContentProvider.CONTENT_URI, values);
-                    } else {
-                        ContentValues values = new ContentValues();
-                        values.put(MessageTable.COLUMN_MESSAGE, message);
-                        getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+                    Message message = gson.fromJson(json, Message.class);
+                    if (message.className.equals(AdminMessage.class.getName())) {
+                        handleAdminMessage(gson.fromJson(json, AdminMessage.class));
+                    } else if (message.className.equals(ChatMessage.class.getName())) {
+                        handleChatMessage(gson.fromJson(json, ChatMessage.class), echo);
                     }
 
-                    // Echo the message to connected clients
-                    if (!isAdminMessage && echo && cursor != null){
-                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-                            String host = cursor.getString(0 /*IP column*/);
 
-                            if ( !(host.equals(localIP)) /*|| host.equals(client.getInetAddress().getHostName()) */) {
-                                Intent echoIntent = new Intent(this, MessageService.class);
-                                echoIntent.setAction(MessageService.ACTION_SEND);
-                                echoIntent.putExtra(MessageService.EXTRAS_HOST, host);
-                                echoIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
-                                echoIntent.putExtra(MessageService.EXTRAS_MESSAGE, message);
-                                startService(echoIntent);
-                            }
-                        }
-                    }
 
                     client.close();
                 }
@@ -120,6 +110,39 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    private void handleChatMessage(ChatMessage message, boolean echo) {
+        ContentValues values = new ContentValues();
+        values.put(MessageTable.COLUMN_NAME, message.getName());
+        values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
+        getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+
+
+        // Echo the message to connected clients
+        if (echo && cursor != null){
+            for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                String host = cursor.getString(0 /*IP column*/);
+
+                if ( !(host.equals(localIP)) /*|| host.equals(client.getInetAddress().getHostName()) */) {
+                    Intent echoIntent = new Intent(this, MessageService.class);
+                    echoIntent.setAction(MessageService.ACTION_SEND);
+                    echoIntent.putExtra(MessageService.EXTRAS_HOST, host);
+                    echoIntent.putExtra(MessageService.EXTRAS_PORT, PORT);
+                    echoIntent.putExtra(MessageService.EXTRAS_MESSAGE, message.toJson());
+                    startService(echoIntent);
+                }
+            }
+        }
+    }
+
+    private void handleAdminMessage(AdminMessage message) {
+        if (message.getType() == AdminMessage.MessageType.IP_NOTIFICATION) {
+            // save to database
+            ContentValues values = new ContentValues();
+            values.put(ClientTable.COLUMN_IP, message.getData());
+            getContentResolver().insert(ClientContentProvider.CONTENT_URI, values);
         }
     }
 

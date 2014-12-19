@@ -13,6 +13,8 @@ import android.text.TextUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import edu.chalmers.lanchat.Message;
+
 public class MessageContentProvider extends ContentProvider {
 
     // database
@@ -164,7 +166,7 @@ public class MessageContentProvider extends ContentProvider {
     }
 
     private void checkColumns(String[] projection) {
-        String[] available = { MessageTable.COLUMN_MESSAGE, MessageTable.COLUMN_ID };
+        String[] available = {MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE, MessageTable.COLUMN_ID };
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
             HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(available));
