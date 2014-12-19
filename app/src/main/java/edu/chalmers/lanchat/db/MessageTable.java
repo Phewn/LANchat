@@ -14,6 +14,8 @@ public class MessageTable {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_MESSAGE = "message";
+    public static final String COLUMN_POPULARITY = "popularity";
+    public static final String COLUMN_COLOR = "color";
 
     // Database creation SQL statement
     private static final String DATABASE_CREATE = "create table "
@@ -21,6 +23,8 @@ public class MessageTable {
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_NAME + " text not null, "
+            + COLUMN_POPULARITY + " integer not null, "
+            + COLUMN_COLOR + " integer not null, "
             + COLUMN_MESSAGE + " text not null "
             + ");";
 

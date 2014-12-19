@@ -1,6 +1,8 @@
 package edu.chalmers.lanchat;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -10,54 +12,50 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
-/**
- * Created by oliver on 14-12-17.
- */
-public class CustomAdapter extends ArrayAdapter<ChatMessage> {
+import edu.chalmers.lanchat.db.MessageTable;
+
+
+public class CustomAdapter extends SimpleCursorAdapter {
+    private static final int layout = R.layout.rowlayout;
     private final Context context;
 
-    public CustomAdapter(Context context, ArrayList<ChatMessage> chatMessages) {
-        super(context, R.layout.rowlayout, chatMessages);
+    private static String[] from = new String[] { MessageTable.COLUMN_MESSAGE };
+    private static int[] to = new int[] { android.R.id.text1 };
+    private final LayoutInflater inflater;
+
+    public CustomAdapter(Context context) {
+        super(context, layout, null, from, to, 0);
         this.context = context;
+        this.inflater = LayoutInflater.from(context);
+    }
+
+
+    @Override
+    public View newView (Context context, Cursor cursor, ViewGroup parent) {
+        return inflater.inflate(layout, null);
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        // reuse views
-        if (rowView == null) {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            rowView = inflater.inflate(R.layout.rowlayout, null);
-            // configure view holder
-            ViewHolder viewHolder = new ViewHolder();
-            viewHolder.textViewNameAndMessage = (TextView) rowView.findViewById(R.id.textViewNameAndMessage);
-            rowView.setTag(viewHolder);
+    public void bindView(View view, Context context, Cursor cursor) {
+        super.bindView(view, context, cursor);
 
-        }
+        TextView textViewNameAndMessage = (TextView) view.findViewById(R.id.textViewNameAndMessage);
 
-        // fill data
-        ViewHolder holder = (ViewHolder) rowView.getTag();
-
-        float textSize = getItem(position).getTextSize();
-        String name = getItem(position).getName();
-        String message = getItem(position).getMessage();
+        String message = cursor.getString(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_MESSAGE));
+        String name = cursor.getString(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_NAME));
+        int popularity = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_POPULARITY));
+        int color = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_COLOR));
 
         Spannable nameAndMessage = new SpannableString(name + message);
-        nameAndMessage.setSpan(new ForegroundColorSpan(getItem(position).getColor()),0,name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        nameAndMessage.setSpan(new ForegroundColorSpan(color),0,name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-        holder.textViewNameAndMessage.setText(nameAndMessage);
-        holder.textViewNameAndMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
-
-
-        return rowView;
-    }
-
-
-    static class ViewHolder {
-        public TextView textViewNameAndMessage;
+        textViewNameAndMessage.setText(message);
+        float textSize = (float) (14 + 5*Math.log(popularity));
+        textViewNameAndMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 }

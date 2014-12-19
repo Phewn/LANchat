@@ -1,6 +1,10 @@
 package edu.chalmers.lanchat;
 
 import android.app.Activity;
+import android.app.LoaderManager;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.provider.ContactsContract;
@@ -14,10 +18,15 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import edu.chalmers.lanchat.db.ClientContentProvider;
+import edu.chalmers.lanchat.db.MessageContentProvider;
+import edu.chalmers.lanchat.db.MessageTable;
 
 /*
 *To do:
@@ -26,7 +35,9 @@ import java.util.Random;
  */
 
 
-public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+
+    public static final String EXTRA_GROUP_OWNER = "EXTRA_GROUP_OWNER";
 
     private EditText newShout;
     private ListView listViewI;
@@ -60,7 +71,7 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             }
         });
 
-        adapter = new CustomAdapter(this, listItems);
+        adapter = new CustomAdapter(this);
 
         listViewI.setAdapter(adapter);
 
@@ -70,8 +81,19 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
         getUsername();
 
+        getLoaderManager().initLoader(0, null, this);
     }
 
+    /**
+     * Override the back button pressed in order to send back an empty result to the activity
+     * which started this one.
+     */
+    @Override
+    public void onBackPressed() {
+        // Make sure the activity gets notified when finishing
+        setResult(RESULT_OK, new Intent());
+        finish();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -133,14 +155,14 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ChatMessage chatMessage  = adapter.getItem(position);
-        float pop = chatMessage.getPopularity();
+        Cursor cursor = (Cursor) adapter.getItem(position);
+        float popularity = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_POPULARITY));
 
-        pop += 1;
-        
-        chatMessage.setPopularity(pop);
-        adapter.notifyDataSetChanged();
+        popularity += 1;
 
+        getContentResolver().delete(ClientContentProvider.CONTENT_URI, null, null);
+        getContentResolver().update(MessageContentProvider.CONTENT_URI, )
+        chatMessage.setPopularity(popularity);
     }
 
     public void updateRowSize(){
@@ -188,6 +210,27 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
 
          return eq;
         }
+    }
+
+    /**
+     * Creates a loader which monitors the message table in the database.
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        String[] projection = { MessageTable.COLUMN_ID, MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE };
+        CursorLoader cursorLoader = new CursorLoader(this, MessageContentProvider.CONTENT_URI, projection, null, null, null);
+        return cursorLoader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        adapter.swapCursor(data); // Update the list
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // data is not available anymore, delete reference
+        adapter.swapCursor(null);
     }
 }
 
