@@ -29,7 +29,7 @@ import android.util.Log;
 import edu.chalmers.lanchat.R;
 
 /**
- * A BroadcastReceiver that notifies of important wifi p2p events.
+ * A BroadcastReceiver that notifies us of important wifi p2p events.
  */
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
@@ -50,10 +50,12 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         this.activity = activity;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
-     * android.content.Intent)
+
+    /**
+     * Receives notifications from the Wifi Direct framework.
+     *
+     * @param context
+     * @param intent
      */
     @Override
     public void onReceive(Context context, Intent intent) {

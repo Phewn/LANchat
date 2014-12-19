@@ -109,23 +109,19 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getContentResolver().delete(MessageContentProvider.CONTENT_URI, null, null);
-    }
-
+    /**
+     * Creates a loader which monitors the message table in the database.
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = { MessageTable.COLUMN_ID, MessageTable.COLUMN_MESSAGE };
+        String[] projection = { MessageTable.COLUMN_ID, MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE };
         CursorLoader cursorLoader = new CursorLoader(this, MessageContentProvider.CONTENT_URI, projection, null, null, null);
         return cursorLoader;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.swapCursor(data);
+        adapter.swapCursor(data); // Update the list
     }
 
     @Override

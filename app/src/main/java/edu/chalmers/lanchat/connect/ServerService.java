@@ -2,17 +2,13 @@ package edu.chalmers.lanchat.connect;
 
 import android.app.IntentService;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.os.Handler;
 import android.util.Log;
 
 import com.google.gson.Gson;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,16 +24,19 @@ import edu.chalmers.lanchat.db.ClientTable;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
 
-
+/**
+ * Listens for incoming messages and acts accordingly. Optionally echos received messages to all
+ * connected clients.
+ */
 public class ServerService extends IntentService implements Loader.OnLoadCompleteListener<Cursor> {
+    public static final String TAG = "ServerService";
+
     public static final String EXTRAS_PORT = "EXTRAS_PORT";
     public static final String EXTRAS_ECHO = "EXTRAS_ECHO";
     public static final String ACTION_RECEIVE = "ACTION_RECEIVE";
 
-    public static final String TAG = "ServerService";
     public static final int PORT = 8988;
 
-    private Handler handler;
     private CursorLoader cursorLoader;
     private Cursor cursor;
     private String localIP;
@@ -53,6 +52,7 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
 
         gson = new Gson();
 
+        // Listen to changes in the client table in the database.
         String[] projection = { ClientTable.COLUMN_IP };
         cursorLoader = new CursorLoader(this, ClientContentProvider.CONTENT_URI, projection, null, null, null);
         cursorLoader.registerListener(0, this);
@@ -70,39 +70,42 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
             cursorLoader.stopLoading();
         }
 
-        //empty client data
+        //empty client and message data
         getContentResolver().delete(ClientContentProvider.CONTENT_URI, null, null);
+        getContentResolver().delete(MessageContentProvider.CONTENT_URI, null, null);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_RECEIVE)) {
+            // Extract intent data
             boolean echo = intent.getBooleanExtra(EXTRAS_ECHO, false);
-            int port = intent.getExtras().getInt(EXTRAS_PORT);
+            int port = intent.getExtras().getInt(EXTRAS_PORT, PORT);
 
             try {
                 ServerSocket socket = new ServerSocket(port);
                 Log.d(TAG, "Server socket open");
 
+                // Listen for incoming sockets indefinitely.
                 while (true) {
                     Socket client = socket.accept();
                     Log.d(TAG, "Server socket accepting");
                     InputStream inputStream = client.getInputStream();
+
+                    // Uses a regexp trick where we read until the "next file beginning" which
+                    // amounts to reading the full input stream.
                     Scanner scanner = new Scanner( inputStream ).useDelimiter("\\A");
                     final String json = scanner.next();
                     scanner.close();
-                    inputStream.close();
-                    Log.d(TAG, json);
+                    Log.d(TAG, "Receiving message: " + json);
 
+                    // Detect what kind of message were getting and take action accordingly.
                     Message message = gson.fromJson(json, Message.class);
                     if (message.className.equals(AdminMessage.class.getName())) {
                         handleAdminMessage(gson.fromJson(json, AdminMessage.class));
                     } else if (message.className.equals(ChatMessage.class.getName())) {
                         handleChatMessage(gson.fromJson(json, ChatMessage.class), echo);
                     }
-
-
 
                     client.close();
                 }
@@ -113,12 +116,18 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
         }
     }
 
+    /**
+     * Handles "ordinary" chat messages by inserting them in the message database
+     *
+     * @param message
+     * @param echo
+     */
     private void handleChatMessage(ChatMessage message, boolean echo) {
+        // Put the message in the database
         ContentValues values = new ContentValues();
         values.put(MessageTable.COLUMN_NAME, message.getName());
         values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
         getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
-
 
         // Echo the message to connected clients
         if (echo && cursor != null){
@@ -137,18 +146,25 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
         }
     }
 
+    /**
+     * Handles admin messages according to the message type.
+     * @param message
+     */
     private void handleAdminMessage(AdminMessage message) {
-        if (message.getType() == AdminMessage.MessageType.IP_NOTIFICATION) {
-            // save to database
+        if (message.getType() == AdminMessage.Type.IP_NOTIFICATION) {
+            // save to client to database
             ContentValues values = new ContentValues();
             values.put(ClientTable.COLUMN_IP, message.getData());
             getContentResolver().insert(ClientContentProvider.CONTENT_URI, values);
         }
     }
 
+    /**
+     * Called when the client data changes in the database.
+     */
     @Override
     public void onLoadComplete(Loader<Cursor> loader, Cursor data) {
-        Log.d(TAG, "# database entries: " + data.getCount());
+        Log.d(TAG, "# known clients: " + data.getCount());
         cursor = data;
     }
 }

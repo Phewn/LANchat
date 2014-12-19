@@ -10,7 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- * Created by Daniel on 2014-12-17.
+ * A service which sends a string message to a server socket. By default messages are sent
+ * to the group owner in a wifi direct group.
  */
 public class MessageService extends IntentService {
     public static final String TAG = "MessageService";
@@ -21,6 +22,7 @@ public class MessageService extends IntentService {
     public static final String EXTRAS_PORT = "EXTRAS_PORT";
     public static final String EXTRAS_MESSAGE = "EXTRAS_MESSAGE";
 
+    // Default host and port values
     public static final String IP_SERVER = "192.168.49.1";
     public static int PORT = 8988;
 
@@ -30,37 +32,47 @@ public class MessageService extends IntentService {
         super(TAG);
     }
 
+    /**
+     * Any calls to the service is queued and handled consecutively in a different thread using
+     * this callback.
+     *
+     * @param intent
+     */
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent.getAction().equals(ACTION_SEND)) {
+            // Collect information from the intent
             String host = intent.getExtras().getString(EXTRAS_HOST, IP_SERVER);
             int port = intent.getExtras().getInt(EXTRAS_PORT, PORT);
             String message = intent.getExtras().getString(EXTRAS_MESSAGE);
+
             Socket socket = new Socket();
 
             try {
-                Log.d(TAG, "Opening client socket - ");
+                Log.d(TAG, "Opening client socket");
                 socket.bind(null);
                 socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
 
-                Log.d(WiFiDirectActivity.TAG, "Client socket - " + socket.isConnected());
-                OutputStream stream = socket.getOutputStream();
-
-                stream.write(message.getBytes());
-
-                Log.d(WiFiDirectActivity.TAG, "Client: Data written");
+                if (socket.isConnected()) {
+                    Log.d(TAG, "Sending message: " + message);
+                    OutputStream stream = socket.getOutputStream();
+                    stream.write(message.getBytes());
+                    Log.d(TAG, "Client: Data written");
+                } else {
+                    Log.d(TAG, "Connection to " + host + " failed.");
+                }
             } catch (IOException e) {
-                Log.e(WiFiDirectActivity.TAG, e.getMessage());
+                Log.e(TAG, e.getMessage());
             } finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            // Give up
-                            e.printStackTrace();
-                        }
+                // Make sure the socket is properly closed
+                if (socket != null && socket.isConnected()) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // Give up
+                        e.printStackTrace();
                     }
+
                 }
             }
         }

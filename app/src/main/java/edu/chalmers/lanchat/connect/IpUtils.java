@@ -11,6 +11,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+/**
+ * Provides a set of utilities for finding out IP adresses.
+ */
 public class IpUtils {
 
 	private final static String p2pInt = "p2p-p2p0";

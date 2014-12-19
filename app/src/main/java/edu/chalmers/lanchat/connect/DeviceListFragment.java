@@ -45,7 +45,7 @@ import edu.chalmers.lanchat.R;
 public class DeviceListFragment extends ListFragment implements PeerListListener {
     private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
     ProgressDialog progressDialog = null;
-    View mContentView = null;
+    View contentView = null;
     private WifiP2pDevice device;
 
     @Override
@@ -57,8 +57,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mContentView = inflater.inflate(R.layout.device_list, null);
-        return mContentView;
+        contentView = inflater.inflate(R.layout.device_list, null);
+        return contentView;
     }
 
     /**
@@ -68,6 +68,11 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return device;
     }
 
+    /**
+     * Converts an integer device status to a string representation.
+     * @param deviceStatus
+     * @return
+     */
     private static String getDeviceStatus(int deviceStatus) {
         Log.d(WiFiDirectActivity.TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
@@ -88,7 +93,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     }
 
     /**
-     * Initiate a connection with the peer.
+     * Show the details of a peer on click.
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
@@ -97,45 +102,31 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     }
 
     /**
-     * Array adapter for ListFragment that maintains WifiP2pDevice list.
+     * Array adapter for ListFragment that maintains the WifiP2pDevice list.
      */
     private class WiFiPeerListAdapter extends ArrayAdapter<WifiP2pDevice> {
 
-        private List<WifiP2pDevice> items;
-
-        /**
-         * @param context
-         * @param textViewResourceId
-         * @param objects
-         */
-        public WiFiPeerListAdapter(Context context, int textViewResourceId,
-                List<WifiP2pDevice> objects) {
+        public WiFiPeerListAdapter(Context context, int textViewResourceId, List<WifiP2pDevice> objects) {
             super(context, textViewResourceId, objects);
-            items = objects;
-
         }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            if (v == null) {
-                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(
-                        Context.LAYOUT_INFLATER_SERVICE);
-                v = vi.inflate(R.layout.row_devices, null);
-            }
-            WifiP2pDevice device = items.get(position);
-            if (device != null) {
-                TextView top = (TextView) v.findViewById(R.id.device_name);
-                TextView bottom = (TextView) v.findViewById(R.id.device_details);
-                if (top != null) {
-                    top.setText(device.deviceName);
-                }
-                if (bottom != null) {
-                    bottom.setText(getDeviceStatus(device.status));
-                }
+            if (convertView == null) {
+                LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = vi.inflate(R.layout.row_devices, null);
             }
 
-            return v;
+            WifiP2pDevice device = getItem(position);
+
+            if (device != null) {
+                TextView top = (TextView) convertView.findViewById(R.id.device_name);
+                top.setText(device.deviceName);
+                TextView bottom = (TextView) convertView.findViewById(R.id.device_details);
+                bottom.setText(getDeviceStatus(device.status));
+            }
+
+            return convertView;
         }
     }
 
@@ -146,20 +137,28 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     public void updateThisDevice(WifiP2pDevice device) {
         this.device = device;
-        TextView view = (TextView) mContentView.findViewById(R.id.my_name);
+        TextView view = (TextView) contentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
-        view = (TextView) mContentView.findViewById(R.id.my_status);
+        view = (TextView) contentView.findViewById(R.id.my_status);
         view.setText(getDeviceStatus(device.status));
     }
 
+    /**
+     * Called when peers have been found/changed after a peer discovery.
+     * @param peerList The list of peers.
+     */
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
+        // Clear any progress dialog
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+
+        // Refresh the peer list.
         peers.clear();
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
+
         if (peers.size() == 0) {
             Log.d(WiFiDirectActivity.TAG, "No devices found");
             return;
@@ -167,26 +166,22 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     }
 
+    /**
+     * Remove all peers from the list/adapter.
+     */
     public void clearPeers() {
         peers.clear();
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
     /**
-     * 
+     * Shows a progress dialog while searching.
      */
-    public void onInitiateDiscovery() {
+    public void showPeerDiscoveryDialog() {
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,
-                true, new DialogInterface.OnCancelListener() {
-
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        
-                    }
-                });
+        progressDialog = ProgressDialog.show(getActivity(), "Press back to cancel", "finding peers", true,true);
     }
 
     /**
