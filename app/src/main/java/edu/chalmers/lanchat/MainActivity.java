@@ -1,5 +1,6 @@
 package edu.chalmers.lanchat;
 
+import android.app.Activity;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.provider.ContactsContract;
@@ -25,7 +26,7 @@ import java.util.Random;
  */
 
 
-public class MainActivity extends ActionBarActivity implements AdapterView.OnItemClickListener {
+public class MainActivity extends Activity implements AdapterView.OnItemClickListener {
 
     private EditText newShout;
     private ListView listViewI;
