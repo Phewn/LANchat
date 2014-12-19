@@ -1,38 +1,75 @@
 package edu.chalmers.lanchat;
 
-import java.util.Date;
+import android.graphics.Color;
 
-/**
- * Defines what an ordinary chat message looks like and what different kinds exists.
- */
 public class ChatMessage extends Message {
-
     private String name;
     private String message;
+    private int color = Color.WHITE;
+    private float popularity = 1;
+    private float stdTextSize = 14;
+    private float textSize = 14;
+    private float popMultiple = 5;
 
-    public ChatMessage() {
+    public ChatMessage(int color){
         super(ChatMessage.class.getName());
+        name = "Anonymous";
+        message = "";
+        this.color = color;
     }
 
     public ChatMessage(String name, String message) {
         super(ChatMessage.class.getName());
+        setName(name);
+        setMessage(message);
+    }
+
+    public ChatMessage(String name, int color) {
+        super(ChatMessage.class.getName());
+        setName(name);
+        setColor(color);
+    }
+
+    public void setName(String name){
+        if (name != ""){
+            this.name = name + ": ";
+        }
+        else {
+            this.name = "Anonymous: ";
+        }
         this.name = name;
-        this.message = message;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public void setColor(int color){
+        this.color = color;
+    }
+
+    public void setPopularity(float i){
+        this.popularity = i;
+        textSize = (float) (stdTextSize + popMultiple*Math.log(i));
+    }
+
+    public String getName(){
+        return name;
+    }
+
+    public String getMessage(){
+        return message;
+    }
+
+    public int getColor(){
+        return color;
+    }
+
+    public float getPopularity(){
+        return popularity;
+    }
+
+    public float getTextSize(){
+        return textSize;
     }
 }
