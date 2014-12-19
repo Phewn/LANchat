@@ -29,10 +29,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".MainActivity"
+            android:label="MainActivity" >
+        </activity>
+
         <!-- Used for transferring files  after a successful connection -->
-        <service
-            android:name=".connect.FileTransferService"
-            android:enabled="true" />
         <service
             android:name=".connect.ServerService"
             android:enabled="true" />
