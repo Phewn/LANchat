@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import edu.chalmers.lanchat.ChatActivity;
 import edu.chalmers.lanchat.connect.DeviceListFragment.DeviceActionListener;
 import edu.chalmers.lanchat.R;
 
@@ -156,6 +157,12 @@ public class WiFiDirectActivity extends Activity implements ChannelListener, Dev
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
+                return true;
+            case R.id.action_show_chat:
+                // Start chat activity
+                Intent chatIntent = new Intent(this, ChatActivity.class);
+                chatIntent.putExtra(ChatActivity.EXTRA_DEBUG, true);
+                startActivityForResult(chatIntent, 0);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

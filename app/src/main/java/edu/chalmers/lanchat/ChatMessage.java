@@ -18,6 +18,12 @@ public class ChatMessage extends Message {
         this.color = color;
     }
 
+    public ChatMessage(String message) {
+        super(ChatMessage.class.getName());
+        setName(null);
+        setMessage(message);
+    }
+
     public ChatMessage(String name, String message) {
         super(ChatMessage.class.getName());
         setName(name);
@@ -31,13 +37,11 @@ public class ChatMessage extends Message {
     }
 
     public void setName(String name){
-        if (name != ""){
+        if (name == null || name == "") {
+            this.name = "Anonymous: ";
+        } else {
             this.name = name + ": ";
         }
-        else {
-            this.name = "Anonymous: ";
-        }
-        this.name = name;
     }
 
     public void setMessage(String message) {

@@ -2,6 +2,7 @@ package edu.chalmers.lanchat;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -27,6 +28,7 @@ import edu.chalmers.lanchat.db.MessageTable;
 public class ChatActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String EXTRA_GROUP_OWNER = "EXTRA_GROUP_OWNER";
+    public static final String EXTRA_DEBUG = "EXTRA_DEBUG";
 
     private SimpleCursorAdapter adapter;
     private ListView chatList;
@@ -34,11 +36,14 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private EditText inputText;
     private TextView groupOwnerText;
     private Gson gson;
+    private boolean debug;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
+        debug = getIntent().getBooleanExtra(EXTRA_DEBUG, false);
 
         gson = new Gson();
 
@@ -66,25 +71,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         inputText = (EditText) findViewById(R.id.inputText);
 
         sendButton = (Button) findViewById(R.id.sendButton);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String input = inputText.getText().toString().trim();
-                if (input.length() > 0) {
-
-                    // For now, send the ip as username
-                    ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
-
-                    // Send the message to the server
-                    Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
-                    serviceIntent.setAction(MessageService.ACTION_SEND);
-                    serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, message.toJson());
-                    startService(serviceIntent);
-                }
-                // Clear the input field
-                inputText.setText("");
-            }
-        });
+        sendButton.setOnClickListener( (debug) ? new SendListenerDebug() : new SendListener() );
     }
 
     /**
@@ -139,5 +126,42 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     public void onLoaderReset(Loader<Cursor> loader) {
         // data is not available anymore, delete reference
         adapter.swapCursor(null);
+    }
+
+    private class SendListenerDebug implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            String input = inputText.getText().toString().trim();
+            if (input.length() > 0) {
+                ChatMessage message = new ChatMessage(input);
+                // Put the message in the database
+                ContentValues values = new ContentValues();
+                values.put(MessageTable.COLUMN_NAME, message.getName());
+                values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
+                getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+            }
+            // Clear the input field
+            inputText.setText("");
+        }
+    }
+
+    private class SendListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            String input = inputText.getText().toString().trim();
+            if (input.length() > 0) {
+
+                // For now, send the ip as username
+                ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
+
+                // Send the message to the server
+                Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
+                serviceIntent.setAction(MessageService.ACTION_SEND);
+                serviceIntent.putExtra(MessageService.EXTRAS_MESSAGE, message.toJson());
+                startService(serviceIntent);
+            }
+            // Clear the input field
+            inputText.setText("");
+        }
     }
 }

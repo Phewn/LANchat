@@ -93,21 +93,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		return contentView;
 	}
 
-    /**
-     * Called when the ChatActivity is finished. Used to stop the chat server service.
-     * @param requestCode ignored
-     * @param resultCode ignored
-     * @param data ignored
-     */
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Stop server
-        getActivity().stopService(new Intent(getActivity(), ServerService.class));
-        server_running = false;
-        // Disconnect from group.
-        ((DeviceListFragment.DeviceActionListener) getActivity()).disconnect();
-	}
-
 	@Override
 	public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         if (!info.groupFormed) {
