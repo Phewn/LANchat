@@ -50,12 +50,10 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         chatList = (ListView) findViewById(R.id.chatList);
 
         // Subscribe to the message database table
-        String[] from = new String[] { MessageTable.COLUMN_MESSAGE };
-        int[] to = new int[] { android.R.id.text1 };
         getLoaderManager().initLoader(0, null, this);
 
         // Make the list reflect the database
-        adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, from, to, 0);
+        adapter = new ChatAdapter(this);
         chatList.setAdapter(adapter);
 
         groupOwnerText = (TextView) findViewById(R.id.groupOwnerText);
