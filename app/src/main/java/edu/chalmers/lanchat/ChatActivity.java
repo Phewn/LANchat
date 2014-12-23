@@ -7,7 +7,9 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +31,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
     public static final String EXTRA_GROUP_OWNER = "EXTRA_GROUP_OWNER";
     public static final String EXTRA_DEBUG = "EXTRA_DEBUG";
+    private static final String TAG = "ChatActivity";
 
     private SimpleCursorAdapter adapter;
     private ListView chatList;
@@ -110,7 +113,13 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
      */
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        String[] projection = { MessageTable.COLUMN_ID, MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE };
+        String[] projection = {
+            MessageTable.COLUMN_ID,
+            MessageTable.COLUMN_NAME,
+            MessageTable.COLUMN_MESSAGE,
+            MessageTable.COLUMN_COLOR,
+            MessageTable.COLUMN_LIKES
+        };
         CursorLoader cursorLoader = new CursorLoader(this, MessageContentProvider.CONTENT_URI, projection, null, null, null);
         return cursorLoader;
     }
@@ -136,7 +145,11 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 ContentValues values = new ContentValues();
                 values.put(MessageTable.COLUMN_NAME, message.getName());
                 values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
+                values.put(MessageTable.COLUMN_COLOR, message.getColor());
+                values.put(MessageTable.COLUMN_LIKES, message.getPopularity());
                 getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+
+
             }
             // Clear the input field
             inputText.setText("");

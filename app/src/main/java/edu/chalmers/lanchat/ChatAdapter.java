@@ -3,6 +3,11 @@ package edu.chalmers.lanchat;
 import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +19,12 @@ import edu.chalmers.lanchat.db.MessageTable;
 public class ChatAdapter extends SimpleCursorAdapter {
     private static String[] from = { MessageTable.COLUMN_MESSAGE };
     private static int[] to = { android.R.id.text1 };
-    private static final int layout = android.R.layout.simple_list_item_2;
+    private static final int layout = R.layout.rowlayout;
 
     private final LayoutInflater inflater;
+
+    private float stdTextSize = 14;
+    private float popMultiple = 5;
 
     public ChatAdapter(Context context) {
         super(context, layout, null, from, to, 0);
@@ -32,12 +40,18 @@ public class ChatAdapter extends SimpleCursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         super.bindView(view, context, cursor);
 
-        TextView nameText = (TextView) view.findViewById(android.R.id.text1);
         String name = cursor.getString(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_NAME));
-        nameText.setText(name);
-
-        TextView messageText = (TextView) view.findViewById(android.R.id.text2);
         String message = cursor.getString(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_MESSAGE));
-        messageText.setText(message);
+        int color = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_COLOR));
+        float likes = cursor.getFloat(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_LIKES));
+
+        float textSize = (float) (stdTextSize + popMultiple * Math.log(likes));
+
+        Spannable nameAndMessage = new SpannableString(name + message);
+        nameAndMessage.setSpan(new ForegroundColorSpan(color), 0, name.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        TextView textViewNameAndMessage = (TextView) view.findViewById(R.id.textViewNameAndMessage);
+        textViewNameAndMessage.setText(nameAndMessage);
+        textViewNameAndMessage.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
     }
 }

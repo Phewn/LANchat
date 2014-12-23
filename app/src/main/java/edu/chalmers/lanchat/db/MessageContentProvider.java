@@ -173,7 +173,13 @@ public class MessageContentProvider extends ContentProvider {
      * @param projection
      */
     private void checkColumns(String[] projection) {
-        String[] available = {MessageTable.COLUMN_NAME, MessageTable.COLUMN_MESSAGE, MessageTable.COLUMN_ID };
+        String[] available = {  MessageTable.COLUMN_NAME,
+                                MessageTable.COLUMN_MESSAGE,
+                                MessageTable.COLUMN_COLOR,
+                                MessageTable.COLUMN_LIKES,
+                                MessageTable.COLUMN_ID
+                             };
+
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
             HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(available));

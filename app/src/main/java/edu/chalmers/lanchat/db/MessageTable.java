@@ -1,6 +1,7 @@
 package edu.chalmers.lanchat.db;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.util.Log;
 
 /**
@@ -14,6 +15,8 @@ public class MessageTable {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_MESSAGE = "message";
+    public static final String COLUMN_COLOR = "color";
+    public static final String COLUMN_LIKES = "likes";
 
     // Database creation SQL statement
     private static final String DATABASE_CREATE = "create table "
@@ -21,7 +24,9 @@ public class MessageTable {
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_NAME + " text not null, "
-            + COLUMN_MESSAGE + " text not null "
+            + COLUMN_MESSAGE + " text not null, "
+            + COLUMN_COLOR + " integer default " + Color.WHITE + ", "
+            + COLUMN_LIKES + " real default 1.0"
             + ");";
 
     public static void onCreate(SQLiteDatabase database) {
