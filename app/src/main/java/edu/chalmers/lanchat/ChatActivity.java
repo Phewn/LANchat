@@ -2,6 +2,7 @@ package edu.chalmers.lanchat;
 
 import android.app.Activity;
 import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -52,6 +54,17 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         gson = new Gson();
 
         chatList = (ListView) findViewById(R.id.chatList);
+
+        chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ChatMessage chatMessage = (ChatMessage) view.getTag();
+                chatMessage.incPopularity(1);
+                ContentValues values = new ContentValues();
+                values.put(MessageTable.COLUMN_LIKES, chatMessage.getPopularity());
+                getContentResolver().update(ContentUris.withAppendedId(MessageContentProvider.CONTENT_URI, id), values, null, null);
+            }
+        });
 
         // Subscribe to the message database table
         getLoaderManager().initLoader(0, null, this);

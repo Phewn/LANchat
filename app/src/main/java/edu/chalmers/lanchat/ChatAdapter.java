@@ -45,6 +45,12 @@ public class ChatAdapter extends SimpleCursorAdapter {
         int color = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_COLOR));
         float likes = cursor.getFloat(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_LIKES));
 
+        ChatMessage chatMessage = new ChatMessage(name, message);
+        chatMessage.setColor(color);
+        chatMessage.setPopularity(likes);
+
+        view.setTag(chatMessage);
+
         float textSize = (float) (stdTextSize + popMultiple * Math.log(likes));
 
         Spannable nameAndMessage = new SpannableString(name + message);
