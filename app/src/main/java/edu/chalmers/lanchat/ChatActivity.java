@@ -25,6 +25,7 @@ import edu.chalmers.lanchat.connect.IpUtils;
 import edu.chalmers.lanchat.connect.MessageService;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
+import edu.chalmers.lanchat.util.Faker;
 
 
 public class ChatActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -139,18 +140,23 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         @Override
         public void onClick(View v) {
             String input = inputText.getText().toString().trim();
-            if (input.length() > 0) {
-                ChatMessage message = new ChatMessage(input);
-                // Put the message in the database
-                ContentValues values = new ContentValues();
-                values.put(MessageTable.COLUMN_NAME, message.getName());
-                values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
-                values.put(MessageTable.COLUMN_COLOR, message.getColor());
-                values.put(MessageTable.COLUMN_LIKES, message.getPopularity());
-                getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
 
 
+            if (input.length() == 0) {
+                // Generate fake input.
+                Faker faker = new Faker();
+                input = faker.sentence(3, 8);
             }
+
+            ChatMessage message = new ChatMessage(input);
+            // Put the message in the database
+            ContentValues values = new ContentValues();
+            values.put(MessageTable.COLUMN_NAME, message.getName());
+            values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
+            values.put(MessageTable.COLUMN_COLOR, message.getColor());
+            values.put(MessageTable.COLUMN_LIKES, message.getPopularity());
+            getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
+
             // Clear the input field
             inputText.setText("");
         }
