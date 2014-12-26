@@ -127,6 +127,8 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
         ContentValues values = new ContentValues();
         values.put(MessageTable.COLUMN_NAME, message.getName());
         values.put(MessageTable.COLUMN_MESSAGE, message.getMessage());
+        values.put(MessageTable.COLUMN_COLOR, message.getColor());
+        values.put(MessageTable.COLUMN_LIKES, message.getPopularity());
         getContentResolver().insert(MessageContentProvider.CONTENT_URI, values);
 
         // Echo the message to connected clients
