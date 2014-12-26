@@ -11,9 +11,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,7 +38,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     public static final String EXTRA_DEBUG = "EXTRA_DEBUG";
     private static final String TAG = "ChatActivity";
 
-    private SimpleCursorAdapter adapter;
+    private ChatAdapter adapter;
     private ListView chatList;
     private Button sendButton;
     private EditText inputText;
@@ -66,6 +68,16 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             }
         });
 
+        chatList.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                updateRowSize();
+            }
+        });
+
         // Subscribe to the message database table
         getLoaderManager().initLoader(0, null, this);
 
@@ -87,6 +99,57 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener( (debug) ? new SendListenerDebug() : new SendListener() );
+    }
+
+    private void updateRowSize() {
+        int lastPos = chatList.getFirstVisiblePosition();
+
+
+        int x = chatList.getChildCount();
+        int displacement = 1;
+        for (int i = 0; i < x; i++) {
+
+            if ( i < x-displacement ) {
+
+
+                //Get popularity from ChatMessege
+                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+lastPos);
+                View v = chatList.getChildAt(i + lastPos);
+                if (v == null) {
+                    return;
+                }
+                ChatMessage chat = (ChatMessage) v.getTag();
+                float textSize = chat.getTextSize();
+
+                //Get row and change size on that row
+                View view = chatList.getChildAt(i);
+
+                TextView text = (TextView) view.findViewById(R.id.textViewNameAndMessage);
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i+displacement, x, textSize));
+            }
+        }
+    }
+
+    private double logUpdateList(int pos, int listSize, float textSize){
+        /*
+        Changes size on the message dependent on its popularity and position.
+         */
+        int x = listSize - pos;
+        double intensityOfCurve = 0.1;
+        int minimumTextSize = 3;
+
+
+        double eq = textSize*(1/(1+Math.exp(x*intensityOfCurve)))/0.5;
+
+        if(eq < minimumTextSize){
+
+            return minimumTextSize;
+        }
+
+        else{
+
+            return eq;
+        }
     }
 
     /**

@@ -54,7 +54,7 @@ public class ChatMessage extends Message {
 
     public void setPopularity(float i){
         this.popularity = i;
-        textSize = (float) (stdTextSize + popMultiple*Math.log(i));
+        this.textSize = (float) (stdTextSize + popMultiple*Math.log(i));
     }
 
     public void incPopularity(int amount) {
