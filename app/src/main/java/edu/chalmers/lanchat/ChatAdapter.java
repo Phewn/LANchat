@@ -17,9 +17,9 @@ import android.widget.TextView;
 import edu.chalmers.lanchat.db.MessageTable;
 
 public class ChatAdapter extends SimpleCursorAdapter {
-    private static String[] from = { MessageTable.COLUMN_MESSAGE };
-    private static int[] to = { android.R.id.text1 };
-    private static final int layout = R.layout.rowlayout;
+    private static String[] from = {MessageTable.COLUMN_MESSAGE};
+    private static int[] to = {android.R.id.text1};
+    private static final int layout = R.layout.list_item;
 
     private final LayoutInflater inflater;
 
@@ -32,7 +32,7 @@ public class ChatAdapter extends SimpleCursorAdapter {
     }
 
     @Override
-    public View newView (Context context, Cursor cursor, ViewGroup parent) {
+    public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return inflater.inflate(layout, null);
     }
 

@@ -39,12 +39,14 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private static final String TAG = "ChatActivity";
 
     private ChatAdapter adapter;
-    private ListView chatList;
+    //private ListView chatList;
     private Button sendButton;
     private EditText inputText;
     private TextView groupOwnerText;
     private Gson gson;
     private boolean debug;
+
+    private MyListView chatList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         gson = new Gson();
 
-        chatList = (ListView) findViewById(R.id.chatList);
+        chatList = (MyListView) findViewById(R.id.chatList);
 
         chatList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -67,7 +69,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 getContentResolver().update(ContentUris.withAppendedId(MessageContentProvider.CONTENT_URI, id), values, null, null);
             }
         });
-
+        /*
         chatList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {}
@@ -76,14 +78,16 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 updateRowSize();
             }
-        });
+        });*/
 
         // Subscribe to the message database table
         getLoaderManager().initLoader(0, null, this);
 
         // Make the list reflect the database
         adapter = new ChatAdapter(this);
+
         chatList.setAdapter(adapter);
+        //chatList.setAdapter(adapter);
 
         groupOwnerText = (TextView) findViewById(R.id.groupOwnerText);
 
