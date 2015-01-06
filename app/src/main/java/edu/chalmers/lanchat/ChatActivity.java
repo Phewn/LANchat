@@ -8,8 +8,8 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -19,13 +19,10 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-import edu.chalmers.lanchat.connect.IpUtils;
 import edu.chalmers.lanchat.connect.MessageService;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
@@ -45,6 +42,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private TextView groupOwnerText;
     private Gson gson;
     private boolean debug;
+    private String userName;
 
     private MyListView chatList;
 
@@ -52,6 +50,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
 
         debug = getIntent().getBooleanExtra(EXTRA_DEBUG, false);
 
@@ -67,18 +66,21 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 ContentValues values = new ContentValues();
                 values.put(MessageTable.COLUMN_LIKES, chatMessage.getPopularity());
                 getContentResolver().update(ContentUris.withAppendedId(MessageContentProvider.CONTENT_URI, id), values, null, null);
+                Log.d("ListView", "updated");
             }
         });
-        /*
+
+
         chatList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {}
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 updateRowSize();
             }
-        });*/
+        });
 
         // Subscribe to the message database table
         getLoaderManager().initLoader(0, null, this);
@@ -103,6 +105,9 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener( (debug) ? new SendListenerDebug() : new SendListener() );
+
+        getUsername();
+
     }
 
     private void updateRowSize() {
@@ -228,7 +233,8 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 input = faker.sentence(3, 8);
             }
 
-            ChatMessage message = new ChatMessage(input);
+            ChatMessage message = new ChatMessage(userName, input);
+
             // Put the message in the database
             ContentValues values = new ContentValues();
             values.put(MessageTable.COLUMN_NAME, message.getName());
@@ -249,7 +255,8 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             if (input.length() > 0) {
 
                 // For now, send the ip as username
-                ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
+                //ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
+                ChatMessage message = new ChatMessage(userName, input);
 
                 // Send the message to the server
                 Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
@@ -260,5 +267,12 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             // Clear the input field
             inputText.setText("");
         }
+    }
+
+    public void getUsername() {
+        Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        c.moveToFirst();
+        userName = c.getString(c.getColumnIndex("display_name"));
+        c.close();
     }
 }

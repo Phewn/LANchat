@@ -13,15 +13,13 @@ import android.text.TextUtils;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import edu.chalmers.lanchat.Message;
-
 /**
  * Provides access to the Message table in the database.
  */
 public class MessageContentProvider extends ContentProvider {
 
     // database
-    private LanchatDatabaseHelper database;
+    private LanChatDatabaseHelper database;
 
     // used for the UriMacher
     private static final int MESSAGES = 30;
@@ -44,7 +42,7 @@ public class MessageContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        database = new LanchatDatabaseHelper(getContext());
+        database = new LanChatDatabaseHelper(getContext());
         return false;
     }
 

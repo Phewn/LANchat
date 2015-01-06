@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.widget.AbsListView;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 
@@ -14,7 +16,7 @@ import java.util.LinkedList;
 /**
  * A simple list view that displays the items as 3D blocks
  */
-public class MyListView extends AdapterView<Adapter> {
+public class MyListView extends AdapterView<ChatAdapter> {
 
     /**
      * Represents an invalid child index
@@ -54,7 +56,7 @@ public class MyListView extends AdapterView<Adapter> {
     /**
      * The adapter with all the data
      */
-    private Adapter mAdapter;
+    private ChatAdapter mAdapter;
 
     /**
      * Current touch state
@@ -111,6 +113,8 @@ public class MyListView extends AdapterView<Adapter> {
      * Reusable rect
      */
     private Rect mRect;
+    private AbsListView.OnScrollListener onScrollListener;
+    private VelocityTracker mVelocityTracker;
 
     /**
      * Constructor
@@ -123,14 +127,14 @@ public class MyListView extends AdapterView<Adapter> {
     }
 
     @Override
-    public void setAdapter(final Adapter adapter) {
+    public void setAdapter(final ChatAdapter adapter) {
         mAdapter = adapter;
         removeAllViewsInLayout();
         requestLayout();
     }
 
     @Override
-    public Adapter getAdapter() {
+    public ChatAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -240,6 +244,7 @@ public class MyListView extends AdapterView<Adapter> {
      * Resets and recycles all things that need to when we end a touch gesture
      */
     private void endTouch() {
+
         // remove any existing check for longpress
         removeCallbacks(mLongPressRunnable);
 
@@ -436,9 +441,9 @@ public class MyListView extends AdapterView<Adapter> {
     private void fillListDown(int bottomEdge, final int offset) {
         while (bottomEdge + offset < getHeight() && mLastItemPosition < mAdapter.getCount() - 1) {
             mLastItemPosition++;
-            final View newBottomchild = mAdapter.getView(mLastItemPosition, getCachedView(), this);
-            addAndMeasureChild(newBottomchild, LAYOUT_MODE_BELOW);
-            bottomEdge += newBottomchild.getMeasuredHeight();
+            final View newBottomChild = mAdapter.getView(mLastItemPosition, getCachedView(), this);
+            addAndMeasureChild(newBottomChild, LAYOUT_MODE_BELOW);
+            bottomEdge += newBottomChild.getMeasuredHeight();
         }
     }
 
@@ -451,9 +456,9 @@ public class MyListView extends AdapterView<Adapter> {
     private void fillListUp(int topEdge, final int offset) {
         while (topEdge + offset > 0 && mFirstItemPosition > 0) {
             mFirstItemPosition--;
-            final View newTopCild = mAdapter.getView(mFirstItemPosition, getCachedView(), this);
-            addAndMeasureChild(newTopCild, LAYOUT_MODE_ABOVE);
-            final int childHeight = newTopCild.getMeasuredHeight();
+            final View newTopChild = mAdapter.getView(mFirstItemPosition, getCachedView(), this);
+            addAndMeasureChild(newTopChild, LAYOUT_MODE_ABOVE);
+            final int childHeight = newTopChild.getMeasuredHeight();
             topEdge -= childHeight;
 
             // update the list offset (since we added a view at the top)
@@ -508,5 +513,13 @@ public class MyListView extends AdapterView<Adapter> {
             return mCachedItemViews.removeFirst();
         }
         return null;
+    }
+
+    public void setOnScrollListener(AbsListView.OnScrollListener onScrollListener) {
+        this.onScrollListener = onScrollListener;
+    }
+
+    public AbsListView.OnScrollListener getOnScrollListener() {
+        return onScrollListener;
     }
 }

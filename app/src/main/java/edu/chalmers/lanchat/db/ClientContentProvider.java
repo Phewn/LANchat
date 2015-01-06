@@ -19,7 +19,7 @@ import java.util.HashSet;
 public class ClientContentProvider extends ContentProvider {
 
     // database
-    private LanchatDatabaseHelper database;
+    private LanChatDatabaseHelper database;
 
     // used for the UriMacher
     private static final int CLIENTS = 10;
@@ -27,14 +27,14 @@ public class ClientContentProvider extends ContentProvider {
 
     private static final String AUTHORITY = "edu.chalmers.lanchat.clientprovider";
     private static final String BASE_PATH = "clients";
-    
+
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
 
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/clients";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/client";
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    
+
     static {
         sURIMatcher.addURI(AUTHORITY, BASE_PATH, CLIENTS);
         sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", CLIENT_ID);
@@ -42,7 +42,7 @@ public class ClientContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        database = new LanchatDatabaseHelper(getContext());
+        database = new LanChatDatabaseHelper(getContext());
         return false;
     }
 
@@ -168,10 +168,11 @@ public class ClientContentProvider extends ContentProvider {
 
     /**
      * Makes sure that columns are not asked for that doesn't exist.
+     *
      * @param projection
      */
     private void checkColumns(String[] projection) {
-        String[] available = { ClientTable.COLUMN_IP, ClientTable.COLUMN_ID };
+        String[] available = {ClientTable.COLUMN_IP, ClientTable.COLUMN_ID};
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
             HashSet<String> availableColumns = new HashSet<String>(Arrays.asList(available));
