@@ -71,6 +71,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         });
 
 
+        // TODO: Är detta fortfarande nödvändigt med den nya listan?
         chatList.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
@@ -89,7 +90,6 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         adapter = new ChatAdapter(this);
 
         chatList.setAdapter(adapter);
-        //chatList.setAdapter(adapter);
 
         groupOwnerText = (TextView) findViewById(R.id.groupOwnerText);
 
@@ -111,19 +111,18 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     private void updateRowSize() {
-        int lastPos = chatList.getFirstVisiblePosition();
-
-
-        int x = chatList.getChildCount();
+        int firstVisible = chatList.getFirstVisiblePosition();
+        int childCount = chatList.getChildCount();
         int displacement = 1;
-        for (int i = 0; i < x; i++) {
 
-            if ( i < x-displacement ) {
+        for (int i = 0; i < childCount; i++) {
+
+            if ( i < childCount - displacement ) {
 
 
                 //Get popularity from ChatMessege
-                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+lastPos);
-                View v = chatList.getChildAt(i + lastPos);
+                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+firstVisible);
+                View v = chatList.getChildAt(i + firstVisible);
                 if (v == null) {
                     return;
                 }
@@ -134,7 +133,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 View view = chatList.getChildAt(i);
 
                 TextView text = (TextView) view.findViewById(R.id.textViewNameAndMessage);
-                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i+displacement, x, textSize));
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i+displacement, childCount, textSize));
             }
         }
     }
@@ -212,6 +211,9 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        //TODO: Det är den här metoden som kallas när databasen uppdateras.
+        //      kanske är inte all funktionalitet för swapCursor är implementerad
+        //      i MyListView?
         adapter.swapCursor(data); // Update the list
     }
 

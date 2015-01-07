@@ -19,7 +19,7 @@ import java.util.HashSet;
 public class MessageContentProvider extends ContentProvider {
 
     // database
-    private LanChatDatabaseHelper database;
+    private LanchatDatabaseHelper database;
 
     // used for the UriMacher
     private static final int MESSAGES = 30;
@@ -42,7 +42,7 @@ public class MessageContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        database = new LanChatDatabaseHelper(getContext());
+        database = new LanchatDatabaseHelper(getContext());
         return false;
     }
 
