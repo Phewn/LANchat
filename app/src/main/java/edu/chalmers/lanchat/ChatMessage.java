@@ -26,7 +26,11 @@ public class ChatMessage extends Message {
 
     public ChatMessage(String name, String message) {
         super(ChatMessage.class.getName());
-        setName(name);
+        if( name == "" ){
+            setName("Anonymous");
+        } else {
+            setName(name);
+        }
         setMessage(message);
     }
 

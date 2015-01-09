@@ -10,6 +10,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -45,6 +46,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private TextView groupOwnerText;
     private Gson gson;
     private boolean debug;
+    private String user = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,8 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         debug = getIntent().getBooleanExtra(EXTRA_DEBUG, false);
 
         gson = new Gson();
+
+        getUsername();
 
         chatList = (ListView) findViewById(R.id.chatList);
 
@@ -99,6 +103,13 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         sendButton = (Button) findViewById(R.id.sendButton);
         sendButton.setOnClickListener( (debug) ? new SendListenerDebug() : new SendListener() );
+    }
+
+    public void getUsername() {
+        Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        c.moveToFirst();
+        user = c.getString(c.getColumnIndex("display_name"));
+        c.close();
     }
 
     private void updateRowSize() {
@@ -261,7 +272,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 input = faker.sentence(3, 8);
             }
 
-            ChatMessage message = new ChatMessage(input);
+            ChatMessage message = new ChatMessage(user, input);
             // Put the message in the database
             ContentValues values = new ContentValues();
             values.put(MessageTable.COLUMN_NAME, message.getName());
