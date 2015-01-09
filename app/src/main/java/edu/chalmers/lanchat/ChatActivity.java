@@ -102,44 +102,81 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     private void updateRowSize() {
+
         int lastPos = chatList.getFirstVisiblePosition();
+        int firstPos = chatList.getLastVisiblePosition();
+        //int first = chatList
 
 
         int x = chatList.getChildCount();
         int displacement = 1;
-        for (int i = 0; i < x; i++) {
-
-            if ( i < x-displacement ) {
+        //int level = 2;
 
 
-                //Get popularity from ChatMessege
-                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+lastPos);
-                View v = chatList.getChildAt(i + lastPos);
-                if (v == null) {
-                    return;
-                }
+        Log.d("FirstPos", firstPos + "");
+        Log.d("ListLength", lastPos + "");
+        Log.d("Diff", (firstPos-lastPos) + "");
+
+        for(int i = -100; i <= 100; i++) {
+            View v = chatList.getChildAt(i);
+            if (v != null) {
+                Log.d("Hit", i + "");
                 ChatMessage chat = (ChatMessage) v.getTag();
+                Log.d("Message", chat.getMessage());
+
                 float textSize = chat.getTextSize();
 
                 //Get row and change size on that row
-                View view = chatList.getChildAt(i);
+                //View view = chatList.getChildAt(i);
 
-                TextView text = (TextView) view.findViewById(R.id.textViewNameAndMessage);
-                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i+displacement, x, textSize));
+                TextView text = (TextView) v.findViewById(R.id.textViewNameAndMessage);
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize));
+
+
             }
         }
+        /*
+        for (int i = 0; i > firstPos-lastPos; i++) {
+            //Log.d("LastPos", lastPos + "");
+            //Log.d("x-displacement", x-displacement + "");
+
+            if ( true  ) {
+                //Get popularity from ChatMessege
+                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+lastPos);
+                View v = chatList.getChildAt(i);
+                if (v != null) {
+                    ChatMessage chat = (ChatMessage) v.getTag();
+                    float textSize = chat.getTextSize();
+
+                    //Get row and change size on that row
+                    //View view = chatList.getChildAt(i);
+
+                    TextView text = (TextView) v.findViewById(R.id.textViewNameAndMessage);
+                    text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize));
+
+                }
+                Log.d("Error", "Error");
+
+            }
+        }*/
+
     }
 
-    private double logUpdateList(int pos, int listSize, float textSize){
+    private double logUpdateList(int pos, float textSize){
         /*
         Changes size on the message dependent on its popularity and position.
          */
-        int x = listSize - pos;
-        double intensityOfCurve = 0.1;
-        int minimumTextSize = 3;
+
+        int x = pos;
+        double intensityOfCurve = 0.05;
+        int minimumTextSize = 5;
 
 
-        double eq = textSize*(1/(1+Math.exp(x*intensityOfCurve)))/0.5;
+        double eq = textSize*(2/(1+Math.exp(x*intensityOfCurve)));
+
+        Log.d("calc", eq + "");
+        return eq;
+        /*
 
         if(eq < minimumTextSize){
 
@@ -149,7 +186,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         else{
 
             return eq;
-        }
+        }*/
     }
 
     /**
