@@ -2,4 +2,12 @@
 <resources>
     <color name="status_bar_color">#FF000000</color>
     <color name="layout_border_color">#FF111111</color>
+    <color name="colorPrimary">#C2185B</color>
+    <color name="colorPrimaryDark">#AD1457</color>
+    <color name="colorAccent">#EC407A</color>
+    <color name="colorPurple">#7B1FA2</color>
+    <color name="colorRed">#D32F2F</color>
+    <color name="colorIndigo">#303F9F</color>
+    <color name="colorTeal">#00796B</color>
+
 </resources>

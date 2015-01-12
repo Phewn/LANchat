@@ -153,7 +153,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
          */
 
         int x = pos-diff;
-        double intensityOfCurve = 0.11;
+        double intensityOfCurve = 0.1;
         int minimumTextSize = 5;
 
 
@@ -284,9 +284,11 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private int randColor() {
         Random r = new Random();
         ArrayList list = new ArrayList();
-        list.add(Color.YELLOW);
-        list.add(Color.GREEN);
-        list.add(Color.CYAN);
+        list.add(getResources().getColor(R.color.colorIndigo));
+        list.add(getResources().getColor(R.color.colorPrimary));
+        list.add(getResources().getColor(R.color.colorPurple));
+        list.add(getResources().getColor(R.color.colorRed));
+        list.add(getResources().getColor(R.color.colorTeal));
         int i = r.nextInt(2);
         return (int) list.get(i);
     }
