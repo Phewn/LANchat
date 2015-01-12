@@ -93,6 +93,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 		return contentView;
 	}
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        getActivity().stopService(new Intent(getActivity(), ServerService.class));
+        server_running = false;
+        ((DeviceListFragment.DeviceActionListener) getActivity()).disconnect();
+    }
+
 	@Override
 	public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         if (!info.groupFormed) {
