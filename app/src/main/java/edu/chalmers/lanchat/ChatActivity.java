@@ -8,6 +8,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -25,6 +26,10 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import edu.chalmers.lanchat.connect.IpUtils;
 import edu.chalmers.lanchat.connect.MessageService;
@@ -116,17 +121,11 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
         int lastPos = chatList.getFirstVisiblePosition();
         int firstPos = chatList.getLastVisiblePosition();
-        //int first = chatList
-
-
-        int x = chatList.getChildCount();
-        int displacement = 1;
-        //int level = 2;
-
+        int diff = firstPos - lastPos;
 
         Log.d("FirstPos", firstPos + "");
         Log.d("ListLength", lastPos + "");
-        Log.d("Diff", (firstPos-lastPos) + "");
+        Log.d("Diff", (diff) + "");
 
         for(int i = -100; i <= 100; i++) {
             View v = chatList.getChildAt(i);
@@ -137,53 +136,30 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
                 float textSize = chat.getTextSize();
 
-                //Get row and change size on that row
-                //View view = chatList.getChildAt(i);
 
                 TextView text = (TextView) v.findViewById(R.id.textViewNameAndMessage);
-                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize));
+
+                //Get row and change size on that row
+                text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize, diff));
+                text.setPadding(10,(int) logUpdateList(i, 10, diff), 0, (int) logUpdateList(i, 10, diff));
 
 
             }
         }
-        /*
-        for (int i = 0; i > firstPos-lastPos; i++) {
-            //Log.d("LastPos", lastPos + "");
-            //Log.d("x-displacement", x-displacement + "");
-
-            if ( true  ) {
-                //Get popularity from ChatMessege
-                //ChatMessage chat = (ChatMessage) chatList.getItemAtPosition(i+lastPos);
-                View v = chatList.getChildAt(i);
-                if (v != null) {
-                    ChatMessage chat = (ChatMessage) v.getTag();
-                    float textSize = chat.getTextSize();
-
-                    //Get row and change size on that row
-                    //View view = chatList.getChildAt(i);
-
-                    TextView text = (TextView) v.findViewById(R.id.textViewNameAndMessage);
-                    text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize));
-
-                }
-                Log.d("Error", "Error");
-
-            }
-        }*/
-
     }
 
-    private double logUpdateList(int pos, float textSize){
+    private double logUpdateList(int pos, float textSize, int diff){
         /*
         Changes size on the message dependent on its popularity and position.
          */
 
-        int x = pos;
+        int x = pos-diff;
         double intensityOfCurve = 0.05;
         int minimumTextSize = 5;
 
 
-        double eq = textSize*(2/(1+Math.exp(x*intensityOfCurve)));
+        double eq = textSize*(2/(1+Math.exp((-x)*intensityOfCurve)));
+        //double eq = textSize*(1/(1+Math.exp(-x)));
 
         Log.d("calc", eq + "");
         return eq;
@@ -293,7 +269,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             if (input.length() > 0) {
 
                 // For now, send the ip as username
-                ChatMessage message = new ChatMessage(IpUtils.getLocalIPAddress(), input);
+                ChatMessage message = new ChatMessage(user, input);
 
                 // Send the message to the server
                 Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
@@ -304,5 +280,15 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             // Clear the input field
             inputText.setText("");
         }
+    }
+
+    private int randColor() {
+        Random r = new Random();
+        ArrayList list = new ArrayList();
+        list.add(Color.YELLOW);
+        list.add(Color.GREEN);
+        list.add(Color.CYAN);
+        int color = r.nextInt(2);
+        return color;
     }
 }

@@ -14,16 +14,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/textViewName"
-            android:textSize="14sp"
+            android:textSize="30sp"
             android:id="@+id/textViewNameAndMessage" />
 
     </LinearLayout>
-
+<!--
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:id="@+id/imageView"
         android:background="#ffffffff"
-        android:contentDescription="@string/whiteLine" />
+        android:contentDescription="@string/whiteLine" />-->
 
 </LinearLayout>

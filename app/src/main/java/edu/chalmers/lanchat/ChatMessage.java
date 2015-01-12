@@ -7,7 +7,7 @@ public class ChatMessage extends Message {
     private String message;
     private int color = Color.YELLOW;
     private float popularity = 1;
-    private float stdTextSize = 14;
+    private static final float STD_TEXT_SIZE = 14;
     private float popMultiple = 5;
     private float textSize = 14;
 
@@ -26,6 +26,7 @@ public class ChatMessage extends Message {
 
     public ChatMessage(String name, String message) {
         super(ChatMessage.class.getName());
+        this.textSize = textSize;
         if( name == "" ){
             setName("Anonymous");
         } else {
@@ -56,9 +57,10 @@ public class ChatMessage extends Message {
         this.color = color;
     }
 
+
     public void setPopularity(float i){
         this.popularity = i;
-        this.textSize = (float) (stdTextSize + popMultiple*Math.log(i));
+        this.textSize = (float) (STD_TEXT_SIZE + popMultiple*Math.log(i));
     }
 
     public void incPopularity(int amount) {
