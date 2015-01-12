@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
@@ -22,16 +21,13 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
-import edu.chalmers.lanchat.connect.IpUtils;
 import edu.chalmers.lanchat.connect.MessageService;
 import edu.chalmers.lanchat.db.MessageContentProvider;
 import edu.chalmers.lanchat.db.MessageTable;
@@ -52,6 +48,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     private Gson gson;
     private boolean debug;
     private String user = "";
+    private int textColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +60,8 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         gson = new Gson();
 
         getUsername();
+
+        textColor = randColor();
 
         chatList = (ListView) findViewById(R.id.chatList);
 
@@ -248,7 +247,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
                 input = faker.sentence(3, 8);
             }
 
-            ChatMessage message = new ChatMessage(user, input);
+            ChatMessage message = new ChatMessage(user, input, textColor);
             // Put the message in the database
             ContentValues values = new ContentValues();
             values.put(MessageTable.COLUMN_NAME, message.getName());
@@ -269,7 +268,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
             if (input.length() > 0) {
 
                 // For now, send the ip as username
-                ChatMessage message = new ChatMessage(user, input);
+                ChatMessage message = new ChatMessage(user, input, textColor);
 
                 // Send the message to the server
                 Intent serviceIntent = new Intent(ChatActivity.this, MessageService.class);
@@ -288,7 +287,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         list.add(Color.YELLOW);
         list.add(Color.GREEN);
         list.add(Color.CYAN);
-        int color = r.nextInt(2);
-        return color;
+        int i = r.nextInt(2);
+        return (int) list.get(i);
     }
 }

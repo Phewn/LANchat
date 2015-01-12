@@ -24,9 +24,9 @@ public class ChatMessage extends Message {
         setMessage(message);
     }
 
-    public ChatMessage(String name, String message) {
+    public ChatMessage(String name, String message, int textColor) {
         super(ChatMessage.class.getName());
-        this.textSize = textSize;
+        color = textColor;
         if( name == "" ){
             setName("Anonymous");
         } else {

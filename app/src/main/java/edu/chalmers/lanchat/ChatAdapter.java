@@ -45,7 +45,7 @@ public class ChatAdapter extends SimpleCursorAdapter {
         int color = cursor.getInt(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_COLOR));
         float likes = cursor.getFloat(cursor.getColumnIndexOrThrow(MessageTable.COLUMN_LIKES));
 
-        ChatMessage chatMessage = new ChatMessage(name, message);
+        ChatMessage chatMessage = new ChatMessage(name, message, color);
         chatMessage.setColor(color);
         chatMessage.setPopularity(likes);
 
