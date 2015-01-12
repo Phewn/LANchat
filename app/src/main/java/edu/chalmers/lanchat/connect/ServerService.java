@@ -82,8 +82,9 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
             boolean echo = intent.getBooleanExtra(EXTRAS_ECHO, false);
             int port = intent.getExtras().getInt(EXTRAS_PORT, PORT);
 
+            ServerSocket socket = null;
             try {
-                ServerSocket socket = new ServerSocket(port);
+                socket = new ServerSocket(port);
                 Log.d(TAG, "Server socket open");
 
                 // Listen for incoming sockets indefinitely.
@@ -112,6 +113,14 @@ public class ServerService extends IntentService implements Loader.OnLoadComplet
 
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        // Give up
+                    }
+                }
             }
         }
     }
