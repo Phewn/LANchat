@@ -92,11 +92,6 @@ public class MainActivity extends Activity implements AdapterView.OnItemClickLis
             return true;
         }
 
-        //noinspection SimplifiableIfStatement
-        else if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 

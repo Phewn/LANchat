@@ -96,16 +96,6 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         adapter = new ChatAdapter(this);
         chatList.setAdapter(adapter);
 
-        groupOwnerText = (TextView) findViewById(R.id.groupOwnerText);
-
-        // Make it visible whether the phone acts as server or client.
-        if (getIntent().getBooleanExtra(EXTRA_GROUP_OWNER, false)) {
-            groupOwnerText.setText("Server");
-        } else {
-            groupOwnerText.setText("Client");
-        }
-
-
         inputText = (EditText) findViewById(R.id.inputText);
         sendButton = (ImageButton) findViewById(R.id.sendButton);
 
@@ -130,7 +120,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         Log.d("ListLength", lastPos + "");
         Log.d("Diff", (diff) + "");
 
-        for(int i = -100; i <= 100; i++) {
+        for(int i = 0; i <= diff; i++) {
             View v = chatList.getChildAt(i);
             if (v != null) {
                 Log.d("Hit", i + "");
@@ -144,7 +134,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
                 //Get row and change size on that row
                 text.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) logUpdateList(i, textSize, diff));
-                text.setPadding(10,(int) logUpdateList(i, 10, diff), 0, (int) logUpdateList(i, 10, diff));
+                text.setPadding(20,(int) logUpdateList(i, 10, diff), 0, (int) logUpdateList(i, 10, diff));
 
 
             }
@@ -203,11 +193,6 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -293,7 +278,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         list.add(getResources().getColor(R.color.colorPurple));
         list.add(getResources().getColor(R.color.colorRed));
         list.add(getResources().getColor(R.color.colorTeal));
-        int i = r.nextInt(2);
+        int i = r.nextInt(list.size()-1);
         return (int) list.get(i);
     }
 }
