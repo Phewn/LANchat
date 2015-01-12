@@ -7,9 +7,9 @@ public class ChatMessage extends Message {
     private String message;
     private int color = Color.YELLOW;
     private float popularity = 1;
-    private static final float STD_TEXT_SIZE = 14;
+    private static final float STD_TEXT_SIZE = 20;
     private float popMultiple = 5;
-    private float textSize = 14;
+    private float textSize = 20;
 
     public ChatMessage(int color){
         super(ChatMessage.class.getName());

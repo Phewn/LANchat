@@ -154,7 +154,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
          */
 
         int x = pos-diff;
-        double intensityOfCurve = 0.05;
+        double intensityOfCurve = 0.11;
         int minimumTextSize = 5;
 
 
