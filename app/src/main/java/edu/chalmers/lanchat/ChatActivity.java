@@ -11,6 +11,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -42,7 +45,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
     private ChatAdapter adapter;
     private ListView chatList;
-    private Button sendButton;
+    private ImageButton sendButton;
     private EditText inputText;
     private TextView groupOwnerText;
     private Gson gson;
@@ -104,8 +107,9 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
 
         inputText = (EditText) findViewById(R.id.inputText);
+        sendButton = (ImageButton) findViewById(R.id.sendButton);
 
-        sendButton = (Button) findViewById(R.id.sendButton);
+        sendButton = (ImageButton) findViewById(R.id.sendButton);
         sendButton.setOnClickListener( (debug) ? new SendListenerDebug() : new SendListener() );
     }
 

@@ -26,16 +26,18 @@
 
         <EditText
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:id="@+id/inputText"
             android:layout_weight="99"
             android:windowSoftInputMode="stateHidden" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:text="Shout!"
             android:id="@+id/sendButton"
+            android:enabled="true"
+            android:background="@drawable/ic_action_send_now"
             android:layout_weight="1"/>
     </LinearLayout>
 
