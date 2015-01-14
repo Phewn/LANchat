@@ -8,7 +8,7 @@ public class ChatMessage extends Message {
     private int color = Color.YELLOW;
     private float popularity = 1;
     private static final float STD_TEXT_SIZE = 20;
-    private float popMultiple = 5;
+    private float popMultiple = 10;
     private float textSize = 20;
 
     public ChatMessage(int color){

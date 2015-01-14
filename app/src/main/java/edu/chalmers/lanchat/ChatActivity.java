@@ -63,6 +63,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         gson = new Gson();
 
         getUsername();
+        user = "Evil Villan";
 
         textColor = randColor();
 
@@ -104,6 +105,7 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
     }
 
     public void getUsername() {
+
         Cursor c = getApplication().getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
         c.moveToFirst();
         user = c.getString(c.getColumnIndex("display_name"));
@@ -229,11 +231,16 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         public void onClick(View v) {
             String input = inputText.getText().toString().trim();
 
+            String tempUser = user;
+            int tempColor = textColor;
+
 
             if (input.length() == 0) {
                 // Generate fake input.
                 Faker faker = new Faker();
                 input = faker.sentence(3, 8);
+                randCharacter();
+                input = "I don't get it!";
             }
 
             ChatMessage message = new ChatMessage(user, input, textColor);
@@ -247,6 +254,9 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
 
             // Clear the input field
             inputText.setText("");
+
+            user = tempUser;
+            textColor = tempColor;
         }
     }
 
@@ -280,5 +290,26 @@ public class ChatActivity extends Activity implements LoaderManager.LoaderCallba
         list.add(getResources().getColor(R.color.colorTeal));
         int i = r.nextInt(list.size()-1);
         return (int) list.get(i);
+    }
+
+    private void randCharacter() {
+        Random r = new Random();
+        ArrayList listName = new ArrayList();
+        listName.add("Daniel Craig");
+        listName.add("Evil Villan");
+        listName.add("Jeanne d'Arc");
+        listName.add("V. Putin");
+        listName.add("Astrid Lindgren");
+        int i = r.nextInt(listName.size()-1);
+        user = (String) listName.get(i);
+
+        ArrayList listColor = new ArrayList();
+        listColor.add(getResources().getColor(R.color.colorIndigo));
+        listColor.add(getResources().getColor(R.color.colorPrimary));
+        listColor.add(getResources().getColor(R.color.colorPurple));
+        listColor.add(getResources().getColor(R.color.colorRed));
+        listColor.add(getResources().getColor(R.color.colorTeal));
+
+        textColor = (int) listColor.get(i);
     }
 }
